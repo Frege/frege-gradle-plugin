@@ -1,36 +1,10 @@
+import org.gradle.frege.FregePlugin
+
+buildscript {
+  repositories {
+    flatDir name:"frege-lib", dirs:"buildSrc/lib"
+  }
+}
+
 apply plugin: FregePlugin
 apply plugin: "idea"
-apply plugin: "java"
-
-class FregePlugin implements Plugin<Project> {
-    void apply(Project project) {
-        // Add the 'greeting' extension object
-        project.extensions.create("frege", FregePluginExtension)
-        // Add a task that uses the configuration
-        project.task('hello') << {
-
-
-          "java -cp "
-          "frege.compiler.Main"
-
-
-
-        }
-    }
-}
-
-class FregePluginExtension {
-
-}
-
-repositories {
-
-  flatDir name:"frege-lib", dirs:"lib"
-
-}
-
-dependencies {
-
-  compile ":frege:3.21.232-g7b05453"
-
-}

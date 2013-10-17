@@ -1,0 +1,14 @@
+apply plugin: "groovy"
+
+repositories {
+
+  flatDir name:"frege-lib", dirs:"lib"
+
+}
+
+dependencies {
+
+  compile ":frege:3.21.232-g7b05453"
+  compile gradleApi()
+
+}
