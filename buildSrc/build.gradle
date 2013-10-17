@@ -10,5 +10,6 @@ dependencies {
 
   compile ":frege:3.21.232-g7b05453"
   compile gradleApi()
+  compile localGroovy()
 
 }
