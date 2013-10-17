@@ -29,7 +29,8 @@ class FregeTask extends DefaultTask {
     FileResolver fileResolver = getServices().get(FileResolver.class)
     JavaExecAction action = new DefaultJavaExecAction(fileResolver)
     action.setMain("frege.compiler.Main")
-    action.execute
+    action.setClasspath(project.files(project.configurations.compile))
+    action.execute()
   }
 
 }

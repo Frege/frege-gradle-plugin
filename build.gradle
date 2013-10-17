@@ -8,3 +8,13 @@ buildscript {
 
 apply plugin: FregePlugin
 apply plugin: "idea"
+apply plugin: "java"
+
+
+repositories {
+  flatDir name:"frege-lib", dirs:"buildSrc/lib"
+}
+
+dependencies {
+  compile ":frege:3.21.232-g7b05453"
+}
