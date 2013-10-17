@@ -1,23 +1,15 @@
-buildscript {
-  repositories {
-    flatDir name:"frege-lib", dirs:"buildSrc/lib"
-  }
-}
-
-apply plugin: "frege"
-apply plugin: "idea"
-apply plugin: "java"
-
+apply plugin: "groovy"
 
 repositories {
-  flatDir name:"frege-lib", dirs:"buildSrc/lib"
+
+  flatDir name:"frege-lib", dirs:"lib"
+
 }
 
 dependencies {
-  compile ":frege:3.21.232-g7b05453"
-}
 
-compileFrege {
-  outputDir = project.file("$buildDir/frege")
-  verbose = true
+  compile ":frege:3.21.232-g7b05453"
+  compile gradleApi()
+  compile localGroovy()
+
 }
