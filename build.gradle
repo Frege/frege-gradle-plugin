@@ -1,12 +1,10 @@
-import org.gradle.frege.FregePlugin
-
 buildscript {
   repositories {
     flatDir name:"frege-lib", dirs:"buildSrc/lib"
   }
 }
 
-apply plugin: FregePlugin
+apply plugin: "frege"
 apply plugin: "idea"
 apply plugin: "java"
 
@@ -17,4 +15,9 @@ repositories {
 
 dependencies {
   compile ":frege:3.21.232-g7b05453"
+}
+
+compileFrege {
+  outputDir = project.file("$buildDir/frege")
+  verbose = true
 }
