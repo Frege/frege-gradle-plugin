@@ -25,7 +25,7 @@ class FregeTask extends DefaultTask {
   @Input boolean includeStale
 
   // TODO: Find default
-  @OutputDirectory File outputDir = new File("build/classes")
+  @OutputDirectory File outputDir = new File("build/classes/main")
 
   @TaskAction
   void executeCompile() {
