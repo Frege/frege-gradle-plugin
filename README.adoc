@@ -1,2 +1,7 @@
 
 = Frege Gradle Plugin
+
+This is an experiment Gradle plugin to compile Frege projects.  It was forked from https://github.com/galderz/gradle-frege-plugin.
+
+See the example project, https://github.com/mperry/frege-example, for how to use this plugin.  The 0.1-SNAPSHOT build has been uploaded to Sonatype.
+
