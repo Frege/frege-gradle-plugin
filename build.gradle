@@ -1,15 +1,105 @@
+
 apply plugin: "groovy"
+apply plugin: "maven"
+apply plugin: "signing"
 
-repositories {
+ext {
+    isSnapshot = true
+    baseVersion = "0.1"
+    snapshotAppendix = "-SNAPSHOT"
+    fregeVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
-  flatDir name:"frege-lib", dirs:"lib"
+    sonatypeBaseUrl = "https://oss.sonatype.org"
+    sonatypeSnapshotUrl = "$sonatypeBaseUrl/content/repositories/snapshots/"
+    sonatypeRepositoryUrl = "$sonatypeBaseUrl/content/groups/public"
+    sonatypeReleaseUrl = "$sonatypeBaseUrl/service/local/staging/deploy/maven2/"
+    sonatypeUploadUrl = isSnapshot ? sonatypeSnapshotUrl : sonatypeReleaseUrl
+
+    projectUrl = "https://github.com/mperry/gradle-frege-plugin"
+    projectName = "GradleFregePlugin"
+    pomProjectName = "GradleFregePlugin"
+    baseJarName = "gradle-frege-plugin"
+
+    groupName = "com.github.mperry.frege"
+    scmUrl = "git://github.com/mperry/gradle-frege-plugin.git"
+    scmGitFile = "scm:git@github.com:mperry/gradle-frege-plugin.git"
+    projectDescription = "Frege gradle plugin"
+
+    licenseName = "The Apache Software License, Version 2.0"
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+
+    organisation = groupName
+
+    primaryEmail = "frege-programming-language@googlegroups.com"
 
 }
 
+repositories {
+
+//  flatDir name:"frege-lib", dirs:"lib"
+  mavenCentral()
+
+
+}
+
+version = fregeVersion
+group = groupName
+
 dependencies {
+    compile 'com.theoryinpractise.frege:frege:3.22.324-g630677b'
+//    compile ":frege:3.21.232-g7b05453"
+//    compile "com.theoryinpractise.frege:frege:3.21.232-g7b05453"
+//    compile 'com.theoryinpractise.frege:frege:3.21.232-g7b05453'
+    compile gradleApi()
+    compile localGroovy()
 
-  compile ":frege:3.21.232-g7b05453"
-  compile gradleApi()
-  compile localGroovy()
+}
 
+Boolean doSigning() {
+  signingEnabled.trim() == "true"
+}
+
+
+
+uploadArchives {
+  enabled = false
+  repositories {
+    mavenDeployer {
+      if (doSigning()) {
+        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+      }
+
+      repository(url: sonatypeUploadUrl) {
+        authentication(userName: sonatypeUsername, password: sonatypePassword)
+      }
+      pom {
+        groupId = project.group
+        project {
+          name pomProjectName
+          packaging 'jar'
+          description projectDescription
+          url projectUrl
+          organization {
+            name pomProjectName
+            url projectUrl
+          }
+          scm {
+            url scmUrl
+          }
+          licenses {
+            license {
+              name licenseName
+              url licenseUrl
+              distribution 'repo'
+            }
+          }
+          developers {
+            developer {
+              email primaryEmail
+            }
+          }
+        }
+      }
+    }
+  }
 }
