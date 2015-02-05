@@ -62,7 +62,7 @@ Boolean doSigning() {
 
 
 uploadArchives {
-  enabled = false
+  enabled = true
   repositories {
     mavenDeployer {
       if (doSigning()) {
