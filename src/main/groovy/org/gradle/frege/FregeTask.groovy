@@ -30,6 +30,7 @@ class FregeTask extends DefaultTask {
   @TaskAction
   void executeCompile() {
     println "Compiling Frege to " + outputDir
+      // access extension configuration values as ${project.frege.key1}
 
     FileResolver fileResolver = getServices().get(FileResolver.class)
     JavaExecAction action = new DefaultJavaExecAction(fileResolver)
@@ -59,6 +60,7 @@ class FregeTask extends DefaultTask {
 
     }
 
+    println("FregeTask args: $args")
     action.args(args)
 
     action.execute()
