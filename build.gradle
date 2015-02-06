@@ -3,11 +3,13 @@ apply plugin: "groovy"
 apply plugin: "maven"
 apply plugin: "signing"
 
+defaultTasks "build"
+
 ext {
     isSnapshot = true
     baseVersion = "0.1"
     snapshotAppendix = "-SNAPSHOT"
-    fregeVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
+    pluginVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
     sonatypeBaseUrl = "https://oss.sonatype.org"
     sonatypeSnapshotUrl = "$sonatypeBaseUrl/content/repositories/snapshots/"
@@ -32,6 +34,8 @@ ext {
 
     primaryEmail = "frege-programming-language@googlegroups.com"
 
+    fregeVersion = "3.22.324"
+    fregeClassifier = "-g630677b"
 }
 
 repositories {
@@ -42,17 +46,13 @@ repositories {
 
 }
 
-version = fregeVersion
+version = pluginVersion
 group = groupName
 
 dependencies {
-    compile 'com.theoryinpractise.frege:frege:3.22.324-g630677b'
-//    compile ":frege:3.21.232-g7b05453"
-//    compile "com.theoryinpractise.frege:frege:3.21.232-g7b05453"
-//    compile 'com.theoryinpractise.frege:frege:3.21.232-g7b05453'
+    compile "com.theoryinpractise.frege:frege:${fregeVersion}${fregeClassifier}"
     compile gradleApi()
     compile localGroovy()
-
 }
 
 Boolean doSigning() {
