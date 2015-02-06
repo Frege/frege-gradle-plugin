@@ -1,0 +1,70 @@
+
+ext {
+
+    sonatypeBaseUrl = "https://oss.sonatype.org"
+    sonatypeSnapshotUrl = "$sonatypeBaseUrl/content/repositories/snapshots/"
+    sonatypeRepositoryUrl = "$sonatypeBaseUrl/content/groups/public"
+    sonatypeReleaseUrl = "$sonatypeBaseUrl/service/local/staging/deploy/maven2/"
+    sonatypeUploadUrl = isSnapshot ? sonatypeSnapshotUrl : sonatypeReleaseUrl
+
+    projectUrl = "https://github.com/mperry/gradle-frege-plugin"
+    projectName = "GradleFregePlugin"
+    pomProjectName = "GradleFregePlugin"
+    baseJarName = "gradle-frege-plugin"
+
+    groupName = "com.github.mperry.frege"
+    scmUrl = "git://github.com/mperry/gradle-frege-plugin.git"
+    scmGitFile = "scm:git@github.com:mperry/gradle-frege-plugin.git"
+    projectDescription = "Frege gradle plugin"
+
+    licenseName = "The Apache Software License, Version 2.0"
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+
+    organisation = groupName
+
+    primaryEmail = "frege-programming-language@googlegroups.com"
+
+}
+
+uploadArchives {
+    enabled = true
+    repositories {
+        mavenDeployer {
+            if (doSigning()) {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            }
+
+            repository(url: sonatypeUploadUrl) {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+            pom {
+                groupId = groupName
+                project {
+                    name pomProjectName
+                    packaging 'jar'
+                    description projectDescription
+                    url projectUrl
+                    organization {
+                        name pomProjectName
+                        url projectUrl
+                    }
+                    scm {
+                        url scmUrl
+                    }
+                    licenses {
+                        license {
+                            name licenseName
+                            url licenseUrl
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            email primaryEmail
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
