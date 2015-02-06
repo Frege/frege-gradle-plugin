@@ -6,6 +6,6 @@ package org.gradle.frege
 class FregePluginExtension {
 
 
-    String value1
+    String key1
 
 }
