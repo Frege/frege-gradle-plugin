@@ -26,6 +26,10 @@ ext {
 
 }
 
+Boolean doSigning() {
+    signingEnabled.trim() == "true"
+}
+
 uploadArchives {
     enabled = true
     repositories {

@@ -24,12 +24,8 @@ version = pluginVersion
 group = groupName
 
 dependencies {
-    compile "com.theoryinpractise.frege:frege:${fregeVersion}${fregeClassifier}"
+    compile "com.theoryinpractise.frege:frege:$fregeVersion$fregeClassifier"
     compile gradleApi()
     compile localGroovy()
-}
-
-Boolean doSigning() {
-    signingEnabled.trim() == "true"
 }
 
