@@ -10,8 +10,8 @@ ext {
     snapshotAppendix = "-SNAPSHOT"
     pluginVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
-    fregeVersion = "3.22.324"
-    fregeClassifier = "-g630677b"
+    fregeVersion = "3.22.367"
+    fregeClassifier = "-g2737683"
 }
 
 apply from: "gradle/sonatype.gradle"
