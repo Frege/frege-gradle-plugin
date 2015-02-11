@@ -41,7 +41,7 @@ class FregeTask extends DefaultTask {
 
     // TODO: Find default
     @OutputDirectory
-    File outputDir = new File(DEFAULT_CLASSES_DIR)
+    File outputDir = new File(project.projectDir, DEFAULT_CLASSES_DIR)
 
     @TaskAction
     void executeCompile() {
@@ -83,6 +83,11 @@ class FregeTask extends DefaultTask {
                 args << file
             }
         }
+
+
+        println("Creating output dir: ${outputDir.absolutePath}")
+        outputDir.mkdir()
+//        outputDir.mkdirs()
 
         println("FregeTask args: $args")
         action.args(args)
