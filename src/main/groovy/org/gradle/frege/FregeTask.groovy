@@ -76,7 +76,9 @@ class FregeTask extends DefaultTask {
             args = args + extraArgs.split().toList()
         }
 
-        eachFileRecurse(new File(DEFAULT_SRC_DIR)) { File file ->
+        def dir = project.projectDir
+        println("FregeTask projectDir: $dir")
+        eachFileRecurse(new File(dir, DEFAULT_SRC_DIR)) { File file ->
             if (file.name =~ FREGE_FILE_EXTENSION_PATTERN) {
                 args << file
             }
