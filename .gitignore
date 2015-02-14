@@ -1,3 +1,4 @@
+
 # ignore IDEA files
 *.iml
 *.ipr
@@ -21,3 +22,7 @@ classes
 bin
 build
 *.pyc
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
