@@ -1,51 +1,58 @@
 package org.gradle.frege
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
-import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.tooling.BuildException
 
 class FregeTask extends DefaultTask {
 
-    private static final FREGE_FILE_EXTENSION_PATTERN = ~/.*\.fr?$/
+    static String DEFAULT_CLASSES_SUBDIR = "classes/main"       // TODO: should this come from a convention?
+    static String DEFAULT_SRC_DIR        = "src/main/frege"     // TODO: should this come from a source set?
 
-    static String DEFAULT_CLASSES_DIR = "build/classes/main"
-    static String DEFAULT_SRC_DIR = "src/main/frege"
-
-    @Input
+    @Optional @Input
     boolean hints = false
 
-    @Input
+    @Optional @Input
     boolean verbose = false
 
-    @Input
-    boolean inline = false
+    @Optional @Input
+    boolean inline = true
 
-    @Input
+    @Optional @Input
     boolean make = true
 
-    @Input
+    @Optional @Input
     boolean skipCompile = false
 
-    @Input
-    boolean includeStale
-
-    @Input
+    @Optional @Input
     String extraArgs = ""
 
-    @Input
-    String allArgs = ""
+    @Optional @Input
+    String allArgs = "" // this is an option to overrule all other settings
 
-    // TODO: Find default
-    @OutputDirectory
-    File outputDir = new File(project.projectDir, DEFAULT_CLASSES_DIR)
+    @Optional @Input
+    String module = ""
+
+    @Optional @InputDirectory
+    File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR)
+
+    @Optional @OutputDirectory
+    File outputDir = new File(project.buildDir, DEFAULT_CLASSES_SUBDIR)
 
     @TaskAction
     void executeCompile() {
-        println "Compiling Frege to " + outputDir
+
+        if (! sourceDir.exists() ) {
+            throw new StopActionException("Source directory '${sourceDir.absolutePath}' does not exist. Cannot compile Frege code.")
+        }
+        if (! outputDir.exists() ) {
+            logger.info "Creating output directory '${outputDir.absolutePath}'."
+            outputDir.mkdirs()
+        }
+
         // access extension configuration values as ${project.frege.key1}
 
         FileResolver fileResolver = getServices().get(FileResolver.class)
@@ -53,56 +60,41 @@ class FregeTask extends DefaultTask {
         action.setMain("frege.compiler.Main")
         action.setClasspath(project.files(project.configurations.compile))
 
-        List args = []
+        def args = allArgs ? allArgs.split().toList() : assembleArguments()
 
-        if (allArgs != "") {
-            args = allArgs.split().toList()
-        } else {
-
-            if (hints)
-                args << "-hints"
-            if (inline)
-                args << "-inline"
-            if (make)
-                args << "-make"
-            if (verbose)
-                args << "-v"
-            if (skipCompile)
-                args << "-j"
-
-            args << "-d"
-            args << outputDir
-
-            args = args + extraArgs.split().toList()
-        }
-
-        def dir = project.projectDir
-        println("FregeTask projectDir: $dir")
-        eachFileRecurse(new File(dir, DEFAULT_SRC_DIR)) { File file ->
-            if (file.name =~ FREGE_FILE_EXTENSION_PATTERN) {
-                args << file
-            }
-        }
-
-
-        println("Creating output dir: ${outputDir.absolutePath}")
-        outputDir.mkdir()
-//        outputDir.mkdirs()
-
-        println("FregeTask args: $args")
+        logger.info("Calling Frege compiler with args: '$args'")
         action.args(args)
-
         action.execute()
     }
 
-    private static void eachFileRecurse(File dir, Closure fileProcessor) {
-        dir.eachFile { File file ->
-            if (file.directory) {
-                eachFileRecurse(file, fileProcessor)
-            } else {
-                fileProcessor(file)
-            }
-        }
-    }
+    protected List assembleArguments() {
+        List args = []
+        if (hints)
+            args << "-hints"
+        if (inline)
+            args << "-inline"
+        if (make)
+            args << "-make"
+        if (verbose)
+            args << "-v"
+        if (skipCompile)
+            args << "-j"
 
+        args << "-sp"
+        args << sourceDir.absolutePath
+
+        args << "-d"
+        args << outputDir
+
+        if (!module && !extraArgs) {
+            logger.info "no module and no extra args given: compiling all of the sourceDir"
+            args << sourceDir.absolutePath
+        } else if (module) {
+            logger.info "compiling module '$module'"
+            args << module
+        } else {
+            args = args + extraArgs.split().toList()
+        }
+        args
+    }
 }
