@@ -37,17 +37,13 @@ class FregeTask extends DefaultTask {
     String module = ""
 
     @Optional @InputDirectory
-    File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR)
+    File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR).exists() ?  new File(project.projectDir, DEFAULT_SRC_DIR) : null
 
     @Optional @OutputDirectory
     File outputDir = new File(project.buildDir, DEFAULT_CLASSES_SUBDIR)
 
     @TaskAction
     void executeCompile() {
-
-        if (! sourceDir.exists() ) {
-            throw new StopActionException("Source directory '${sourceDir.absolutePath}' does not exist. Cannot compile Frege code.")
-        }
         if (! outputDir.exists() ) {
             logger.info "Creating output directory '${outputDir.absolutePath}'."
             outputDir.mkdirs()
@@ -80,15 +76,20 @@ class FregeTask extends DefaultTask {
         if (skipCompile)
             args << "-j"
 
-        args << "-sp"
-        args << sourceDir.absolutePath
+        if (sourceDir != null) {
+            args << "-sp"
+            args << sourceDir.absolutePath
+        }
 
         args << "-d"
         args << outputDir
 
         if (!module && !extraArgs) {
             logger.info "no module and no extra args given: compiling all of the sourceDir"
-            args << sourceDir.absolutePath
+            if (sourceDir != null) {
+                args << sourceDir.absolutePath
+            }
+
         } else if (module) {
             logger.info "compiling module '$module'"
             args << module
