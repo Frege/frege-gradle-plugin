@@ -5,7 +5,7 @@ apply plugin: "signing"
 defaultTasks "build"
 
 ext {
-    baseVersion = "0.2"
+    baseVersion = "0.1"
     isSnapshot = true
     snapshotAppendix = "-SNAPSHOT"
     pluginVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
