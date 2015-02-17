@@ -11,6 +11,6 @@ public class ReplTask extends DefaultTask {
 
     @TaskAction
     void repl() {
-        frege.repl.FregeRepl.main(null)
+        frege.repl.FregeRepl.main([] as String[])
     }
 }
