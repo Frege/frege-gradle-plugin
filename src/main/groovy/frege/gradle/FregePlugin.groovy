@@ -15,6 +15,8 @@ class FregePlugin implements Plugin<Project> {
         project.tasks.classes.dependsOn("compileFrege")
 
         project.task('fregeRepl', type: ReplTask)
+        project.task('fregeNativeGen', type: NativeGenTask)
+
     }
 
 }

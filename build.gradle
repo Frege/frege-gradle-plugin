@@ -27,6 +27,7 @@ group = groupName
 dependencies {
     compile "com.theoryinpractise.frege:frege:$fregeVersion$fregeClassifier"
     compile "frege:frege-repl-core:1.1.1-SNAPSHOT"
+    compile "frege:native-gen:1.0-SNAPSHOT"
     compile gradleApi()
     compile localGroovy()
 }
