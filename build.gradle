@@ -18,6 +18,7 @@ apply from: "gradle/sonatype.gradle"
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 version = pluginVersion
@@ -25,6 +26,7 @@ group = groupName
 
 dependencies {
     compile "com.theoryinpractise.frege:frege:$fregeVersion$fregeClassifier"
+    compile "frege:frege-repl-core:1.1.1-SNAPSHOT"
     compile gradleApi()
     compile localGroovy()
 }
