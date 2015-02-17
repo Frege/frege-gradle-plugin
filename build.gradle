@@ -10,8 +10,10 @@ ext {
     snapshotAppendix = "-SNAPSHOT"
     pluginVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
-    fregeVersion = "3.22.367"
+    fregeBaseVersion = "3.22.367"
     fregeClassifier = "-g2737683"
+    fregeVersion = "$fregeBaseVersion$fregeClassifier"
+    sonatypeUrl = "https://oss.sonatype.org/content/groups/public"
 }
 
 apply from: "gradle/sonatype.gradle"
@@ -19,6 +21,9 @@ apply from: "gradle/sonatype.gradle"
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        url = sonatypeUrl
+    }
 }
 
 version = pluginVersion
@@ -27,7 +32,7 @@ group = groupName
 dependencies {
     compile "com.theoryinpractise.frege:frege:$fregeVersion$fregeClassifier"
     compile "frege:frege-repl-core:1.1.1-SNAPSHOT"
-    compile "frege:native-gen:1.0-SNAPSHOT"
+    compile "com.github.mperry.frege:native-gen:0.1-SNAPSHOT"
     compile gradleApi()
     compile localGroovy()
 }
