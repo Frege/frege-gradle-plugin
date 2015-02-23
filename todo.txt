@@ -1,0 +1,2 @@
+- add task for QuickCheck
+- add task for FregeDoc

@@ -27,5 +27,6 @@ dependencies {
     compile "com.theoryinpractise.frege:frege:$fregeVersion$fregeClassifier"
     compile gradleApi()
     compile localGroovy()
+
 }
 

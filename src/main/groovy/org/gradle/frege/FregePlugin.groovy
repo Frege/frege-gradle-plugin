@@ -13,6 +13,10 @@ class FregePlugin implements Plugin<Project> {
 
         }
         project.tasks.classes.dependsOn("compileFrege")
+
+        def oFR = project.task('openFregeRepl', type: FregeReplTask, group: 'Runtime', dependsOn: 'classes')
+        oFR.outputs.upToDateWhen { false }
+
     }
 
 }
