@@ -1,4 +1,4 @@
-package org.gradle.frege
+package frege.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -16,6 +16,10 @@ class FregePlugin implements Plugin<Project> {
 
         def oFR = project.task('openFregeRepl', type: FregeReplTask, group: 'Runtime', dependsOn: 'classes')
         oFR.outputs.upToDateWhen { false }
+
+
+        project.task('fregeRepl', type: ReplTask)
+        project.task('fregeNativeGen', type: NativeGenTask)
 
     }
 
