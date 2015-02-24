@@ -1,2 +1,2 @@
-- add task for QuickCheck
+- make a compileTestFrege with the respective task dependencies
 - add task for FregeDoc
