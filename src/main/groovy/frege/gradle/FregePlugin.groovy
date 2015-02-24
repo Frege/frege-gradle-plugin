@@ -14,11 +14,12 @@ class FregePlugin implements Plugin<Project> {
         }
         project.tasks.classes.dependsOn("compileFrege")
 
-        def oFR = project.task('openFregeRepl', type: FregeReplTask, group: 'Runtime', dependsOn: 'classes')
-        oFR.outputs.upToDateWhen { false }
+        def replTask = project.task('fregeRepl', type: FregeReplTask, group: 'Tools', dependsOn: 'classes')
+        replTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks
 
 
-        project.task('fregeRepl', type: ReplTask)
+//        project.task('fregeRepl', type: ReplTask) // we can now choose
+
         project.task('fregeNativeGen', type: NativeGenTask)
 
     }

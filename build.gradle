@@ -27,7 +27,7 @@ repositories {
 }
 
 version = pluginVersion
-group = groupName
+group = 'org.frege-lang'
 
 dependencies {
     compile "com.theoryinpractise.frege:frege:$fregeVersion$fregeClassifier"
