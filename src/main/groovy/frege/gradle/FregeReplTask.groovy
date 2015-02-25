@@ -6,14 +6,16 @@ import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
-import javax.management.relation.Relation
-
 class FregeReplTask extends DefaultTask {
 
     static String DEFAULT_SRC_DIR        = "src/main/frege"     // TODO: should this come from a source set?
+    static String DEFAULT_CLASSES_SUBDIR = "classes/main"       // TODO: should this come from a convention?
 
     @Optional @InputDirectory
     File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR)
+
+    @Optional @InputDirectory
+    File targetDir = new File(project.buildDir, DEFAULT_CLASSES_SUBDIR)
 
     @TaskAction
     void openFregeRepl() {
@@ -29,7 +31,7 @@ class FregeReplTask extends DefaultTask {
         action.setMain("frege.repl.FregeRepl")
         action.workingDir = sourceDir
         action.standardInput = System.in
-        action.setClasspath(project.files(project.configurations.compile ))
+        action.setClasspath(project.files(project.configurations.runtime ) + project.files(targetDir.absolutePath))
 
         action.execute()
     }
