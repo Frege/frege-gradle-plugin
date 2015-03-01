@@ -31,7 +31,7 @@ group = 'org.frege-lang'
 
 dependencies {
     compile "com.theoryinpractise.frege:frege:$fregeVersion"
-    compile "frege:frege-repl-core:1.1.1-SNAPSHOT"
+    compile "org.frege-lang:frege-repl-core:1.1.1-SNAPSHOT"
     compile "com.github.mperry.frege:native-gen:0.1-SNAPSHOT"
     compile gradleApi()
     compile localGroovy()
