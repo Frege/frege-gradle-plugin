@@ -11,11 +11,11 @@ To locally install this plugin use
 
     gradlew clean install
 
-bq.
-There is no need to install gradle or anything else beside a recent Java version.
-It is all self-installing.
 
-note.
-For the latest state of development, there is an issue with the dependency to
+NOTE: There is no need to install gradle or anything else beside a recent Java version.
+      It is all self-installing.
+
+
+CAUTION: For the latest state of development, there is an issue with the dependency to
 the frege-repl project that needs local installation since it is not available
 in any public repository, yet.
