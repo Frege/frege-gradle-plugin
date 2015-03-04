@@ -4,6 +4,9 @@ apply plugin: "signing"
 
 defaultTasks "build"
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 ext {
     baseVersion = "0.2"
     isSnapshot = true
@@ -19,8 +22,8 @@ ext {
 apply from: "gradle/sonatype.gradle"
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
     maven {
         url = sonatypeUrl
     }
