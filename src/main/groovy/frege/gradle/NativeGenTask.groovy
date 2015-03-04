@@ -3,7 +3,7 @@ package frege.gradle
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-import frege.nativegen.*
+//import frege.nativegen.*
 
 /**
  * Created by MarkPerry on 18/02/2015.
@@ -18,7 +18,7 @@ class NativeGenTask extends DefaultTask {
     @TaskAction
     void gen() {
 
-        frege.nativegen.Main.main([clazz] as String[])
+//        frege.nativegen.Main.main([clazz] as String[])
     }
 
 
