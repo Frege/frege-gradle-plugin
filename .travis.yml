@@ -7,3 +7,4 @@ env:
   - secure: guDzn1yz8Kj/MLo+3D48aNiU93mMDKe/iCv8ePACYzSJ596AuGqH0eVZWdDastFJmAgGPI0owjgujdEbx9YOf3Yt8CVSH4h6tcu11Joq+ejW/RccPpDz/W/jHdp2oH1tvlTGyE/5R+Q6u5FnsvssmJf022mgotnrS8sReHxssN8=
 after_success:
 - chmod +x ./deploy.sh; ./deploy.sh
+
