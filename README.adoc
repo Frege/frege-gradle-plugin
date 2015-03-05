@@ -19,3 +19,5 @@ NOTE: There is no need to install gradle or anything else beside a recent Java v
 CAUTION: For the latest state of development, there is an issue with the dependency to
 the frege-repl project that needs local installation since it is not available
 in any public repository, yet.
+
+The Travis CI build of this repository is at https://travis-ci.org/Frege/frege-gradle-plugin/                              .
