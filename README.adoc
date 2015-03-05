@@ -20,4 +20,8 @@ CAUTION: For the latest state of development, there is an issue with the depende
 the frege-repl project that needs local installation since it is not available
 in any public repository, yet.
 
+= Continuous Integration
+
 The Travis CI build of this repository is at https://travis-ci.org/Frege/frege-gradle-plugin/                              .
+
+The snapshot builds are automatically deploy to Sonatype at https://oss.sonatype.org/content/groups/public/org/frege-lang/frege-gradle-plugin/.
