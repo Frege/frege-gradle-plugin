@@ -1,3 +1,4 @@
+
 apply plugin: "groovy"
 apply plugin: "maven"
 apply plugin: "signing"
@@ -11,26 +12,25 @@ ext {
     baseVersion = "0.3"
     isSnapshot = true
     snapshotAppendix = "-SNAPSHOT"
-    pluginVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
+    projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
     fregeBaseVersion = "3.22.367"
     fregeClassifier = "-g2737683"
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
-    sonatypeUrl = "https://oss.sonatype.org/content/groups/public"
 }
 
 apply from: "gradle/sonatype.gradle"
 
 repositories {
     mavenLocal()
-    mavenCentral()
     maven {
-        url = sonatypeUrl
+        url = sonatypeRepositoryUrl
     }
+    mavenCentral()
 }
 
-version = pluginVersion
-group = 'org.frege-lang'
+version = projectVersion
+group = groupName
 
 dependencies {
     compile "com.theoryinpractise.frege:frege:$fregeVersion"
@@ -38,6 +38,4 @@ dependencies {
 //    compile "com.github.mperry.frege:native-gen:0.1-SNAPSHOT"
     compile gradleApi()
     compile localGroovy()
-
 }
-
