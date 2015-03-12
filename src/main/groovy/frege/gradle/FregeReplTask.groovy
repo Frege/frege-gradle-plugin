@@ -12,7 +12,7 @@ class FregeReplTask extends DefaultTask {
     static String DEFAULT_CLASSES_SUBDIR = "classes/main"       // TODO: should this come from a convention?
 
     @Optional @InputDirectory
-    File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR)
+    File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR).exists() ?  new File(project.projectDir, DEFAULT_SRC_DIR) : null
 
     @Optional @InputDirectory
     File targetDir = new File(project.buildDir, DEFAULT_CLASSES_SUBDIR)
@@ -20,7 +20,7 @@ class FregeReplTask extends DefaultTask {
     @TaskAction
     void openFregeRepl() {
 
-        if (! sourceDir.exists() ) {
+        if (sourceDir != null && !sourceDir.exists() ) {
             def currentDir = new File('.')
             logger.info "Intended source dir '${sourceDir.absolutePath}' doesn't exist. Using current dir '${currentDir.absolutePath}' ."
             sourceDir = currentDir
