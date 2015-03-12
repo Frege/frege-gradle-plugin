@@ -29,7 +29,7 @@ class FregeReplTask extends DefaultTask {
         FileResolver fileResolver = getServices().get(FileResolver.class)
         JavaExecAction action = new DefaultJavaExecAction(fileResolver)
         action.setMain("frege.repl.FregeRepl")
-        action.workingDir = sourceDir
+        action.workingDir = sourceDir ?: project.projectDir
         action.standardInput = System.in
         action.setClasspath(project.files(project.configurations.runtime ) + project.files(targetDir.absolutePath))
 
