@@ -14,7 +14,7 @@ class FregeReplTask extends DefaultTask {
     @Optional @InputDirectory
     File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR).exists() ?  new File(project.projectDir, DEFAULT_SRC_DIR) : null
 
-    @Optional @InputDirectory
+    @Optional @OutputDirectory
     File targetDir = new File(project.buildDir, DEFAULT_CLASSES_SUBDIR)
 
     @TaskAction

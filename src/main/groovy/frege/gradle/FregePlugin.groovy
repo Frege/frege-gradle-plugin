@@ -17,13 +17,15 @@ class FregePlugin implements Plugin<Project> {
         }
         project.tasks.classes.dependsOn("compileFrege")
 
-        def replTask = project.task('fregeRepl', type: FregeReplTask, group: 'Tools', dependsOn: 'classes')
+        def replTask = project.task('fregeRepl', type: FregeReplTask, group: 'Tools', dependsOn: 'compileFrege')
         replTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks
 
-        def checkTask = project.task('quickCheck', type: FregeQuickCheckTask, group: 'Tools', dependsOn: 'classes')
+        def checkTask = project.task('quickCheck', type: FregeQuickCheckTask, group: 'Tools', dependsOn: 'compileFrege')
         checkTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks
 
-        project.task('fregeNativeGen', type: NativeGenTask)
+        project.task('fregeDoc', type: FregeDocTask, group: 'Tools', dependsOn: 'compileFrege')
+
+        project.task('fregeNativeGen', type: NativeGenTask, group: 'Tools')
 
     }
 
