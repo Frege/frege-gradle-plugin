@@ -5,17 +5,17 @@ apply plugin: "signing"
 
 defaultTasks "build"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 ext {
     baseVersion = "0.3"
     isSnapshot = true
-    snapshotAppendix = "-SNAPSHOT"
+    snapshotAppendix = ""
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
-    fregeBaseVersion = "3.22.367"
-    fregeClassifier = "-g2737683"
+    fregeBaseVersion = "3.22.524"
+    fregeClassifier = "-gcc99d7e"
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
 }
 
@@ -33,9 +33,9 @@ version = projectVersion
 group = groupName
 
 dependencies {
-    compile "com.theoryinpractise.frege:frege:$fregeVersion"
-    compile "org.frege-lang:frege-repl-core:1.1.1-SNAPSHOT"
-    compile "org.frege-lang:frege-native-gen:1.0-SNAPSHOT"
+    compile "org.frege-lang:frege:$fregeVersion"
+    compile "org.frege-lang:frege-repl-core:1.1.1"
+    compile "org.frege-lang:frege-native-gen:1.0"
     compile gradleApi()
     compile localGroovy()
 }
