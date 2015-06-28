@@ -3,8 +3,25 @@
 
 This is an experimental Gradle plugin to compile Frege projects (https://github.com/Frege/frege).  It was forked from https://github.com/galderz/gradle-frege-plugin.
 
-See the example project, https://github.com/mperry/gradle-frege-example, for how to use this plugin.  The 0.2-SNAPSHOT build has been uploaded to Sonatype.
+See the example project, https://github.com/mperry/gradle-frege-example, for how to use this plugin.
 
+With the 0.3 release we experimented with _github releases_ and http://jitpack.io.
+
+.How to refer to the 0.3 release
+[source, groovy]
+----
+buildscript {        // make the frege plugin available in our build
+    repositories {
+        mavenLocal() // if you have the plugin installed locally, this is enough
+        maven {
+            url = "https://jitpack.io"
+        }
+    }
+    dependencies {
+        classpath 'com.github.frege:frege-gradle-plugin:release-0.3'
+    }
+}
+----
 
 
 To locally install this plugin use
@@ -15,13 +32,8 @@ To locally install this plugin use
 NOTE: There is no need to install gradle or anything else beside a recent Java version.
       It is all self-installing.
 
-
-CAUTION: For the latest state of development, there is an issue with the dependency to
-the frege-repl project that needs local installation since it is not available
-in any public repository, yet.
-
 = Continuous Integration
 
 The Travis CI build of this repository is at https://travis-ci.org/Frege/frege-gradle-plugin/                              .
 
-The snapshot builds are automatically deploy to Sonatype at https://oss.sonatype.org/content/groups/public/org/frege-lang/frege-gradle-plugin/.
+The snapshot builds are automatically deployed to Sonatype at https://oss.sonatype.org/content/groups/public/org/frege-lang/frege-gradle-plugin/.
