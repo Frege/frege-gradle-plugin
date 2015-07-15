@@ -1,24 +1,21 @@
 
 = Frege Gradle Plugin
 
-This is an experimental Gradle plugin to compile Frege projects (https://github.com/Frege/frege).  It was forked from https://github.com/galderz/gradle-frege-plugin.
+This is the official Gradle plugin to compile Frege projects (https://github.com/Frege/frege).  See the example project, https://github.com/mperry/frege-gradle-example, for how to use this plugin.
 
-See the example project, https://github.com/mperry/gradle-frege-example, for how to use this plugin.
+With the 0.3 release we experimented with _github releases_ and http://jitpack.io.  There seems to be access issues to the 0.3 release, please use the 0.4-SNAPSHOT snapshot release.
 
-With the 0.3 release we experimented with _github releases_ and http://jitpack.io.
-
-.How to refer to the 0.3 release
 [source, groovy]
 ----
 buildscript {        // make the frege plugin available in our build
     repositories {
         mavenLocal() // if you have the plugin installed locally, this is enough
         maven {
-            url = "https://jitpack.io"
+            url "https://oss.sonatype.org/content/groups/public"
         }
     }
     dependencies {
-        classpath 'com.github.frege:frege-gradle-plugin:release-0.3'
+        classpath 'org.frege-lang:frege-gradle-plugin:0.4-SNAPSHOT'
     }
 }
 ----
