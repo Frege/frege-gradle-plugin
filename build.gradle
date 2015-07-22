@@ -1,7 +1,17 @@
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+    }
+}
+
 apply plugin: "groovy"
 apply plugin: "maven"
 apply plugin: "signing"
+apply plugin: 'io.codearte.nexus-staging'
 
 defaultTasks "build"
 
@@ -10,7 +20,7 @@ targetCompatibility = 1.7
 
 ext {
     baseVersion = "0.4"
-    isSnapshot = true
+    isSnapshot = false
     snapshotAppendix = "-SNAPSHOT"
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
@@ -39,3 +49,9 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
 }
+
+nexusStaging {
+    packageGroup = groupName
+    stagingProfileId = "a622b6773bea07"
+}
+
