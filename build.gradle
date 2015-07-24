@@ -19,13 +19,13 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 ext {
-    baseVersion = "0.5"
-    isSnapshot = true
+    baseVersion = "0.4.1"
+    isSnapshot = false
     snapshotAppendix = "-SNAPSHOT"
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
-    fregeBaseVersion = "3.22.524"
-    fregeClassifier = "-gcc99d7e"
+    fregeBaseVersion = "3.22.367"
+    fregeClassifier = "-g2737683"
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
 }
 
