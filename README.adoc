@@ -3,7 +3,7 @@
 
 This is the official Gradle plugin to compile Frege projects (https://github.com/Frege/frege).  See the example project, https://github.com/mperry/frege-gradle-example, for how to use this plugin.
 
-With the 0.3 release we experimented with _github releases_ and http://jitpack.io.  There seems to be access issues to the 0.3 release, please use the 0.4-SNAPSHOT snapshot release.
+The latest release is 0.4.1.  Note that the 0.3 experimented with _github releases_ and http://jitpack.io.  There seems to be access issues to the 0.3 release, please use the 0.4-SNAPSHOT snapshot release.
 
 [source, groovy]
 ----
@@ -15,7 +15,7 @@ buildscript {        // make the frege plugin available in our build
         }
     }
     dependencies {
-        classpath 'org.frege-lang:frege-gradle-plugin:0.4-SNAPSHOT'
+        classpath 'org.frege-lang:frege-gradle-plugin:0.4.1'
     }
 }
 ----
