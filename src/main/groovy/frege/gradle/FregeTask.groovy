@@ -13,6 +13,9 @@ class FregeTask extends DefaultTask {
     static String DEFAULT_SRC_DIR        = "src/main/frege"     // TODO: should this come from a source set?
 
     @Optional @Input
+    String xss = "4m"
+
+    @Optional @Input
     boolean hints = false
 
     @Optional @Input
@@ -55,6 +58,11 @@ class FregeTask extends DefaultTask {
         JavaExecAction action = new DefaultJavaExecAction(fileResolver)
         action.setMain("frege.compiler.Main")
         action.setClasspath(project.files(project.configurations.compile))
+
+        List jvmargs = []
+        if (xss)
+            jvmargs << "-Xss$xss"
+        action.setJvmArgs(jvmargs)
 
         def args = allArgs ? allArgs.split().toList() : assembleArguments()
 
