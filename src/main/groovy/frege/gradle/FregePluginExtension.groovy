@@ -5,7 +5,8 @@ package frege.gradle
  */
 class FregePluginExtension {
 
-
     String key1
+
+    String mainModule
 
 }

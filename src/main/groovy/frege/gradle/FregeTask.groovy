@@ -1,13 +1,29 @@
 package frege.gradle
 
-import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.api.internal.file.FileResolver
-import org.gradle.tooling.BuildException
+import org.gradle.api.InvalidUserDataException
+import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.tasks.compile.CompilationFailedException
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.compile.AbstractCompile
+import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 
-class FregeTask extends DefaultTask {
+import static org.apache.commons.io.FilenameUtils.removeExtension
+
+
+class FregeTask extends AbstractCompile {
+
+
+    // todo set names
+    private static final String FREGE_COMPILER_CLASS_NAME = 'frege.compiler.Main'
+   	public static final String FREGE_CLASSPATH_FIELD = 'fregeClasspath'
+    FileCollection fregeClasspath
+
+
+
 
     static String DEFAULT_CLASSES_SUBDIR = "classes/main"       // TODO: should this come from a convention?
     static String DEFAULT_SRC_DIR        = "src/main/frege"     // TODO: should this come from a source set?
@@ -46,7 +62,9 @@ class FregeTask extends DefaultTask {
     File outputDir = new File(project.buildDir, DEFAULT_CLASSES_SUBDIR)
 
     @TaskAction
-    void executeCompile() {
+    void compile() {
+        ensureFregeConfigurationSpecified()
+
         if (! outputDir.exists() ) {
             logger.info "Creating output directory '${outputDir.absolutePath}'."
             outputDir.mkdirs()
@@ -56,7 +74,7 @@ class FregeTask extends DefaultTask {
 
         FileResolver fileResolver = getServices().get(FileResolver.class)
         JavaExecAction action = new DefaultJavaExecAction(fileResolver)
-        action.setMain("frege.compiler.Main")
+        action.setMain(FREGE_COMPILER_CLASS_NAME)
         action.setClasspath(project.files(project.configurations.compile))
 
         List jvmargs = []
@@ -106,4 +124,11 @@ class FregeTask extends DefaultTask {
         }
         args
     }
+
+   	protected void ensureFregeConfigurationSpecified() {
+   		if (getFregeClasspath().empty) {
+   			throw new InvalidUserDataException('You must assign a Frege library to the "frege" configuration.')
+   		}
+   	}
+
 }
