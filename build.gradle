@@ -27,8 +27,8 @@ ext {
     snapshotAppendix = "-SNAPSHOT"
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
-    fregeBaseVersion = "3.22.367"
-    fregeClassifier = "-g2737683"
+    fregeBaseVersion = "3.22.524"
+    fregeClassifier = "-gcc99d7e"
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
 }
 
