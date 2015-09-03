@@ -1,10 +1,12 @@
 
 buildscript {
     repositories {
+        mavenLocal()
         mavenCentral()
     }
     dependencies {
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+        classpath "com.github.mperry:frege-gradle-release-plugin:0.1"
     }
 }
 
@@ -12,6 +14,7 @@ apply plugin: "groovy"
 apply plugin: "maven"
 apply plugin: "signing"
 apply plugin: 'io.codearte.nexus-staging'
+apply plugin: 'frege-release'
 
 defaultTasks "build"
 
@@ -24,8 +27,8 @@ ext {
     snapshotAppendix = "-SNAPSHOT"
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
 
-    fregeBaseVersion = "3.22.524"
-    fregeClassifier = "-gcc99d7e"
+    fregeBaseVersion = "3.23.288"
+    fregeClassifier = "-gaa3af0c"
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
 }
 
@@ -55,3 +58,37 @@ nexusStaging {
     stagingProfileId = "a622b6773bea07"
 }
 
+// First, apply the publishing plugin
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
+  }
+}
+
+// Details on how to publish to the gradle plugin portal
+// Go to http://plugins.gradle.org, get yourself a publishing key
+// and add it under ~/.gradle/gradle.properties
+// For publishing, run the task publishPlugins.
+
+apply plugin: "com.gradle.plugin-publish"
+
+// The configuration example below shows the minimum required properties
+// configured to publish your plugin to the plugin portal
+pluginBundle {
+  website = 'https://github.com/Frege/frege-gradle-plugin'
+  vcsUrl = 'https://github.com/Frege/frege-gradle-plugin'
+  description = 'Enabling Frege for compilation, testing, documentation, and supporting tools.'
+  tags = ['frege', 'haskell', 'java']
+
+  plugins {
+    fregePlugin {
+      id = 'org.frege-lang'
+      displayName = 'Frege plugin'
+    }
+  }
+}
