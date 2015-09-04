@@ -1,20 +1,4 @@
-
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
-        classpath "com.github.mperry:frege-gradle-release-plugin:0.1"
-    }
-}
-
 apply plugin: "groovy"
-apply plugin: "maven"
-apply plugin: "signing"
-apply plugin: 'io.codearte.nexus-staging'
-apply plugin: 'frege-release'
 
 defaultTasks "build"
 
@@ -30,20 +14,25 @@ ext {
     fregeBaseVersion = "3.23.288"
     fregeClassifier = "-gaa3af0c"
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
-}
 
-apply from: "gradle/sonatype.gradle"
-
-repositories {
-    mavenLocal()
-    maven {
-        url = sonatypeRepositoryUrl
+    // work around https://issues.gradle.org/browse/GRADLE-3281
+    def home      = new File(System.getProperty("user.home"))
+    def propfile  = new File(home, ".gradle/gradle.properties")
+    props = new Properties()
+    propfile.withReader {
+        props.load(it)
+        System.setProperty "gradle.publish.key"   , props.'gradle.publish.key'
+        System.setProperty "gradle.publish.secret", props.'gradle.publish.secret'
     }
-    mavenCentral()
 }
 
 version = projectVersion
-group = groupName
+group = 'org.frege-lang'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
 
 dependencies {
     compile "org.frege-lang:frege:$fregeVersion"
@@ -53,12 +42,9 @@ dependencies {
     compile localGroovy()
 }
 
-nexusStaging {
-    packageGroup = groupName
-    stagingProfileId = "a622b6773bea07"
-}
 
-// First, apply the publishing plugin
+// using the publishing plugin
+
 buildscript {
   repositories {
     maven {
@@ -72,7 +58,7 @@ buildscript {
 
 // Details on how to publish to the gradle plugin portal
 // Go to http://plugins.gradle.org, get yourself a publishing key
-// and add it under ~/.gradle/gradle.properties
+// and add it to ~/.gradle/gradle.properties as
 // For publishing, run the task publishPlugins.
 
 apply plugin: "com.gradle.plugin-publish"
@@ -81,7 +67,7 @@ apply plugin: "com.gradle.plugin-publish"
 // configured to publish your plugin to the plugin portal
 pluginBundle {
   website = 'https://github.com/Frege/frege-gradle-plugin'
-  vcsUrl = 'https://github.com/Frege/frege-gradle-plugin'
+  vcsUrl  = 'https://github.com/Frege/frege-gradle-plugin'
   description = 'Enabling Frege for compilation, testing, documentation, and supporting tools.'
   tags = ['frege', 'haskell', 'java']
 
