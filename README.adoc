@@ -9,4 +9,4 @@ See https://plugins.gradle.org/plugin/org.frege-lang
 
 = Continuous Integration
 
-The Travis CI build of this repository is at https://travis-ci.org/Frege/frege-gradle-plugin/ .
+The Travis CI build of this repository is at https://travis-ci.org/Frege/frege-gradle-pgitlugin/ .

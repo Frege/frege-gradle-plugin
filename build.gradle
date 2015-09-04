@@ -18,12 +18,14 @@ ext {
     // work around https://issues.gradle.org/browse/GRADLE-3281
     def home      = new File(System.getProperty("user.home"))
     def propfile  = new File(home, ".gradle/gradle.properties")
-    props = new Properties()
-    propfile.withReader {
-        props.load(it)
-        System.setProperty "gradle.publish.key"   , props.'gradle.publish.key'
-        System.setProperty "gradle.publish.secret", props.'gradle.publish.secret'
-    }
+    if (propfile.exists()) {
+        props = new Properties()
+        propfile.withReader {
+            props.load(it)
+            System.setProperty "gradle.publish.key", props.'gradle.publish.key'
+            System.setProperty "gradle.publish.secret", props.'gradle.publish.secret'
+        }
+    } else println "cannot find '$propfile.absolutePath'"
 }
 
 version = projectVersion
