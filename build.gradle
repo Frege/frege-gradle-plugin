@@ -7,10 +7,11 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 ext {
-    baseVersion = "0.4.2"
+    baseVersion = "0.5"
     isSnapshot = true
     snapshotAppendix = "-SNAPSHOT"
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
+    projectGroup = "org.frege-lang"
 
     fregeBaseVersion = "3.23.288"
     fregeClassifier = "-gaa3af0c"
@@ -23,14 +24,26 @@ ext {
         props = new Properties()
         propfile.withReader {
             props.load(it)
-            System.setProperty "gradle.publish.key", props.'gradle.publish.key'
-            System.setProperty "gradle.publish.secret", props.'gradle.publish.secret'
+            def keyName = "gradle.publish.key"
+            def key = props.getProperty(keyName)
+            if (key == null) {
+                println "No key named $keyName found in ${propfile.absolutePath}"
+            }
+            def secretName = "gradle.publish.secret"
+            def secret = props.getProperty(secretName)
+            if (secret == null) {
+                println "No key named $secretName found in ${propfile.absolutePath}"
+            }
+            if (key != null && secret != null) {
+                System.setProperty "gradle.publish.key", props.'gradle.publish.key'
+                System.setProperty "gradle.publish.secret", props.'gradle.publish.secret'
+            }
         }
     } else println "cannot find '$propfile.absolutePath'"
 }
 
 version = projectVersion
-group = 'org.frege-lang'
+group = projectGroup
 
 repositories {
     mavenLocal()
@@ -38,13 +51,12 @@ repositories {
 }
 
 dependencies {
-    compile "org.frege-lang:frege:$fregeVersion"
-    compile "org.frege-lang:frege-repl-core:1.2"
-    compile "org.frege-lang:frege-native-gen:1.3"
+    compile "$projectGroup:frege:$fregeVersion"
+    compile "$projectGroup:frege-repl-core:1.2"
+    compile "$projectGroup:frege-native-gen:1.3"
     compile gradleApi()
     compile localGroovy()
 }
-
 
 // using the publishing plugin
 
