@@ -32,6 +32,9 @@ class FregeDocTask extends DefaultTask {
     @Input @Optional
     Boolean verbose = null
 
+    @Optional @Input
+    String xss = "4m"
+
     @TaskAction
     void fregedoc() {
 
@@ -43,6 +46,11 @@ class FregeDocTask extends DefaultTask {
         action.standardOutput = System.out
         action.errorOutput = System.err
         action.setClasspath(project.files(project.configurations.compile) + project.files("$project.buildDir/classes/main"))
+
+        List jvmargs = []
+        if (xss)
+            jvmargs << "-Xss$xss"
+        action.setJvmArgs(jvmargs)
 
         def args = []
         if (verbose) args << '-v'

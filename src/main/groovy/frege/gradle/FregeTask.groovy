@@ -6,13 +6,8 @@ import org.gradle.process.internal.JavaExecAction
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.file.FileCollection
-import org.gradle.api.internal.tasks.compile.CompilationFailedException
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
-import org.gradle.api.tasks.incremental.IncrementalTaskInputs
-
-import static org.apache.commons.io.FilenameUtils.removeExtension
-
 
 class FregeTask extends AbstractCompile {
 
