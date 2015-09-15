@@ -1,16 +1,21 @@
 package frege.gradle
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.api.internal.file.FileResolver
-import org.gradle.tooling.BuildException
 
-class FregeTask extends DefaultTask {
+class CompileTask extends DefaultTask {
 
     static String DEFAULT_CLASSES_SUBDIR = "classes/main"       // TODO: should this come from a convention?
     static String DEFAULT_SRC_DIR        = "src/main/frege"     // TODO: should this come from a source set?
+
+    static String DEFAULT_TEST_CLASSES_DIR = "classes/test"
+    static String DEFAULT_TEST_SRC_DIR = "src/test/frege"
+
+    Boolean help = false
 
     @Optional @Input
     String xss = "4m"
@@ -40,10 +45,38 @@ class FregeTask extends DefaultTask {
     String module = ""
 
     @Optional @InputDirectory
-    File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR).exists() ?  new File(project.projectDir, DEFAULT_SRC_DIR) : null
+    File sourceDir = deduceSourceDir(project)
 
     @Optional @OutputDirectory
-    File outputDir = new File(project.buildDir, DEFAULT_CLASSES_SUBDIR)
+    File outputDir = deduceClassesDir(project)
+
+    @Optional
+    List<String> fregePackageDirs = []
+
+    static File deduceSourceDir(File projectDir, String subdir) {
+        new File(projectDir, subdir).exists() ?  new File(projectDir, subdir) : null
+    }
+
+    static File deduceSourceDir(Project project) {
+        deduceSourceDir(project.projectDir, DEFAULT_SRC_DIR)
+    }
+
+    static File deduceClassesDir(File projectDir, String subdir) {
+        new File(projectDir, subdir)
+    }
+
+    static File deduceClassesDir(Project project) {
+        deduceClassesDir(project.buildDir, DEFAULT_CLASSES_SUBDIR)
+    }
+
+    static File deduceTestClassesDir(Project project) {
+        deduceClassesDir(project.buildDir, DEFAULT_TEST_CLASSES_DIR)
+    }
+
+    static File deduceTestSrcDir(Project project) {
+        deduceSourceDir(project.projectDir, DEFAULT_TEST_SRC_DIR)
+    }
+
 
     @TaskAction
     void executeCompile() {
@@ -59,12 +92,16 @@ class FregeTask extends DefaultTask {
         action.setMain("frege.compiler.Main")
         action.setClasspath(project.files(project.configurations.compile))
 
-        List jvmargs = []
-        if (xss)
-            jvmargs << "-Xss$xss"
-        action.setJvmArgs(jvmargs)
-
-        def args = allArgs ? allArgs.split().toList() : assembleArguments()
+        def args = []
+        if (help) {
+            args << "-help"
+        } else {
+            List jvmargs = []
+            if (xss)
+                jvmargs << "-Xss$xss"
+            action.setJvmArgs(jvmargs)
+            args = allArgs ? allArgs.split().toList() : assembleArguments()
+        }
 
         logger.info("Calling Frege compiler with args: '$args'")
         action.args(args)
@@ -91,6 +128,11 @@ class FregeTask extends DefaultTask {
 
         args << "-d"
         args << outputDir
+
+        if (!fregePackageDirs.isEmpty()) {
+            args << "-fp"
+            args << fregePackageDirs.join(";")
+        }
 
         if (!module && !extraArgs) {
             logger.info "no module and no extra args given: compiling all of the sourceDir"

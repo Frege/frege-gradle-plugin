@@ -6,7 +6,7 @@ import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
-class FregeReplTask extends DefaultTask {
+class ReplTask extends DefaultTask {
 
     static String DEFAULT_SRC_DIR        = "src/main/frege"     // TODO: should this come from a source set?
     static String DEFAULT_CLASSES_SUBDIR = "classes/main"       // TODO: should this come from a convention?

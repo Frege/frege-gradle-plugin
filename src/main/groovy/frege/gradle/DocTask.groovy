@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
-class FregeDocTask extends DefaultTask {
+class DocTask extends DefaultTask {
 
     static String DEFAULT_SRC_DIR     = "src/main/frege"     // TODO: should this come from a source set?
     static String DEFAULT_DOCS_SUBDIR = "docs/frege"       // TODO: should this come from a convention?
@@ -49,6 +49,7 @@ class FregeDocTask extends DefaultTask {
         args << '-d' << targetDir.absolutePath
         if (exclude) args << '-x' << exclude
         args << module
+
         action.args args
         action.execute()
     }

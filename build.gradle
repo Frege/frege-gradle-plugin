@@ -54,6 +54,7 @@ dependencies {
     compile "$projectGroup:frege:$fregeVersion"
     compile "$projectGroup:frege-repl-core:1.2"
     compile "$projectGroup:frege-native-gen:1.3"
+    compile "org.functionaljava:functionaljava:4.4"
     compile gradleApi()
     compile localGroovy()
 }

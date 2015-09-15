@@ -2,6 +2,7 @@ package frege.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import fj.data.Option
 
 class FregePlugin implements Plugin<Project> {
 
@@ -12,18 +13,30 @@ class FregePlugin implements Plugin<Project> {
         project.apply(plugin: 'base')
         def e = (FregePluginExtension) project.extensions.create("frege", FregePluginExtension)
 
-        project.task('compileFrege', type: FregeTask, group: 'Build') << {
+        project.task('compileFrege', type: CompileTask, group: 'Build') << {
 
         }
         project.tasks.classes.dependsOn("compileFrege")
 
-        def replTask = project.task('fregeRepl', type: FregeReplTask, group: 'Tools', dependsOn: 'compileFrege')
+        project.task('compileTestFrege', type: CompileTask, group: 'Build') {
+            sourceDir = CompileTask.deduceTestSrcDir(project)
+            outputDir = CompileTask.deduceTestClassesDir(project)
+//            logger.info("compileTestFrege debug")
+//            logger.info("projectDir ${project.projectDir}")
+//            logger.info("defaultSrc ${CompileTask.DEFAULT_SRC_DIR}")
+            fregePackageDirs = Option.fromNull(
+                CompileTask.deduceClassesDir(project)
+            ).map { d -> [d.absolutePath] }.orSome([])
+        }
+        project.tasks.testClasses.dependsOn("compileTestFrege")
+
+        def replTask = project.task('fregeRepl', type: ReplTask, group: 'Tools', dependsOn: 'compileFrege')
         replTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks
 
-        def checkTask = project.task('quickCheck', type: FregeQuickCheckTask, group: 'Tools', dependsOn: 'compileFrege')
+        def checkTask = project.task('fregeQuickCheck', type: QuickCheckTask, group: 'Tools', dependsOn: 'compileFrege')
         checkTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks
 
-        project.task('fregeDoc', type: FregeDocTask, group: 'Tools', dependsOn: 'compileFrege')
+        project.task('fregeDoc', type: DocTask, group: 'Tools', dependsOn: 'compileFrege')
 
         project.task('fregeNativeGen', type: NativeGenTask, group: 'Tools')
 

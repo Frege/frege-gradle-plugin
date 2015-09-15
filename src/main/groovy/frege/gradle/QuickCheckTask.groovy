@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
-class FregeQuickCheckTask extends DefaultTask {
+class QuickCheckTask extends DefaultTask {
 
     // more options to consider:
 /*
@@ -45,17 +45,49 @@ class FregeQuickCheckTask extends DefaultTask {
      sequentially. It makes it feasable to run more tests per predicate.
 
      */
+
+    Boolean verbose = true
+    Boolean listAvailable = false
+    Boolean help = false
+    Integer num = 100
+    List<String> includePredicates
+    List<String> excludePredicates
+    String moduleName
+    String moduleDirectory
+    String moduleJar
+    List<String> classpathDirectories =
+        ["$project.buildDir/classes/main/"]
+//        ["$project.buildDir/classes/main/", "$project.buildDir/classes/test/"]
+
+
     @TaskAction
     void runQuickCheck() {
 
         FileResolver fileResolver = getServices().get(FileResolver.class)
         JavaExecAction action = new DefaultJavaExecAction(fileResolver)
         action.setMain("frege.tools.Quick")
+
+        action.standardInput = System.in
+        action.standardOutput = System.out
+        action.errorOutput = System.err
+
         action.setClasspath(project.files(project.configurations.testRuntime))
 
         project.configurations.testRuntime.each { println it }
 
-        action.args("$project.buildDir/classes/main/") // test all in build dir and below build/classes/test/
+        def args = []
+        if (help) {
+
+        } else {
+            if (verbose) args << "-v"
+
+            args = args + classpathDirectories
+//            args.action.args(classpathDirectories) // test all in build dir and below build/classes/test/
+
+
+        }
+
+        action.args args
         action.execute()
     }
 
