@@ -1,11 +1,15 @@
 package frege.gradle
 
+import frege.compiler.Main
+import frege.prelude.PreludeBase
+import frege.runtime.Lambda
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.api.internal.file.FileResolver
+import fj.data.Option
 
 class CompileTask extends DefaultTask {
 
@@ -14,6 +18,8 @@ class CompileTask extends DefaultTask {
 
     static String DEFAULT_TEST_CLASSES_DIR = "classes/test"
     static String DEFAULT_TEST_SRC_DIR = "src/test/frege"
+
+    static Boolean USE_EXTERNAl = false
 
     Boolean help = false
 
@@ -80,6 +86,7 @@ class CompileTask extends DefaultTask {
 
     @TaskAction
     void executeCompile() {
+
         if (! outputDir.exists() ) {
             logger.info "Creating output directory '${outputDir.absolutePath}'."
             outputDir.mkdirs()
@@ -90,6 +97,9 @@ class CompileTask extends DefaultTask {
         FileResolver fileResolver = getServices().get(FileResolver.class)
         JavaExecAction action = new DefaultJavaExecAction(fileResolver)
         action.setMain("frege.compiler.Main")
+        def pf = project.files(project.configurations.compile)
+        def path = pf.getAsPath()
+        logger.info("Compile configuation as path: $path")
         action.setClasspath(project.files(project.configurations.compile))
 
         def args = []
@@ -105,7 +115,38 @@ class CompileTask extends DefaultTask {
 
         logger.info("Calling Frege compiler with args: '$args'")
         action.args(args)
-        action.execute()
+
+        if (USE_EXTERNAl) {
+            action.execute()
+        } else {
+            def args2 = args as String[]
+//            frege.compiler.Main.main(args2)
+            compile(args2)
+//            frege.compiler.Main.runCompiler(args2)
+        }
+    }
+
+    void compile(String[] paramArrayOfString) {
+        long l1 = System.nanoTime();
+//        Main.Ĳ._mainƒd0fa0028
+        Integer localInteger = frege.runtime.Runtime.runMain(
+            PreludeBase.TST.performUnsafe(
+//                        (Lambda)Main.?._main�d0fa0028.inst.apply(PreludeBase._toList(paramArrayOfString)).forced()));
+                (Lambda)Main.Ĳ._mainƒd0fa0028.inst.apply(PreludeBase._toList(paramArrayOfString)).forced()
+            )
+        );
+        long l2 = System.nanoTime();
+        ((PrintWriter)frege.runtime.Runtime.stderr.get()).println("runtime " + (l2 - l1 + 500000L) / 1000000L / 1000.0D + " wallclock seconds.");
+        if (localInteger != null) {
+//            System.exit(localInteger.intValue());
+        }
+    }
+
+    List<String> totalFregeClasspath(Project p, List<String> fp) {
+        def result = []
+        result.addAll(project.files(project.configurations.compile).getFiles().toList().collect { File f -> f.absolutePath })
+        result.addAll(fp)
+        result
     }
 
     protected List assembleArguments() {
@@ -129,9 +170,10 @@ class CompileTask extends DefaultTask {
         args << "-d"
         args << outputDir
 
-        if (!fregePackageDirs.isEmpty()) {
+        def fp = USE_EXTERNAl ? fregePackageDirs : totalFregeClasspath(project, fregePackageDirs)
+        if (!fp.isEmpty()) {
             args << "-fp"
-            args << fregePackageDirs.join(";")
+            args << fp.join(";")
         }
 
         if (!module && !extraArgs) {
