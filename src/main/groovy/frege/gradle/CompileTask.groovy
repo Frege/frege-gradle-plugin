@@ -128,10 +128,8 @@ class CompileTask extends DefaultTask {
 
     void compile(String[] paramArrayOfString) {
         long l1 = System.nanoTime();
-//        Main.Ĳ._mainƒd0fa0028
         Integer localInteger = frege.runtime.Runtime.runMain(
             PreludeBase.TST.performUnsafe(
-//                        (Lambda)Main.?._main�d0fa0028.inst.apply(PreludeBase._toList(paramArrayOfString)).forced()));
                 (Lambda)Main.Ĳ._mainƒd0fa0028.inst.apply(PreludeBase._toList(paramArrayOfString)).forced()
             )
         );
