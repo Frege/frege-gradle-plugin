@@ -13,6 +13,14 @@ import org.gradle.process.internal.JavaExecAction
 
 class NativeGenTask extends DefaultTask {
 
+    /*
+     * Example from https://github.com/Frege/frege-native-gen:
+     * java -cp /path/to/guava-15.0.jar:lib/frege-YY.jar:frege-native-gen-XX.jar frege.nativegen.Main com.google.common.collect.ImmutableCollection
+     */
+
+    // help not currently supported by native gen tool
+    Boolean help = false
+
     @Optional
     @InputFile
     File typesFile = new File(project.projectDir, "types.properties")
@@ -38,8 +46,13 @@ class NativeGenTask extends DefaultTask {
         action.setClasspath(project.files(project.configurations.compile) + project.files("$project.buildDir/classes/main"))
 
         def args = []
-        args << className
-        args << typesFile.absolutePath
+        if (help) {
+            args << "-h"
+        } else {
+            args << className
+            args << typesFile.absolutePath
+        }
+        logger.info("Calling Frege NativeGen with args: '$args'")
         action.args args
         action.execute()
     }
