@@ -12,8 +12,28 @@ import org.gradle.process.internal.JavaExecAction
 
 class DocTask extends DefaultTask {
 
+    /* Usage: java -jar fregec.jar frege.tools.Doc [-v] [-d opt] [-x mod,...] modules ...
+     * -v              print a message for each processed module
+     * -d docdir       specify root directory for documentation
+     *                 Documentation for module x.y.Z will be writen to
+     *                 $docdir/x/y/Z.html
+     * -cp classpath   class path for doc tool
+     * -x mod1[,mod2]  exclude modules whose name starts with 'mod1' or 'mod2'
+     *
+     * Modules can be specified in three ways:
+     *  my.nice.Modul   by name, the Java class for this module must be on the class path
+     *  directory/      all modules that could be loaded if the given directory was on the class path, except exxcluded ones
+     *  path.jar        all modules in the specified JAR file, except excluded ones
+     *
+     * Example: document base frege distribution without compiler modules
+     *      java -cp fregec.jar frege.tools.Doc -d doc -x frege.compiler fregec.jar
+     *
+     */
+
     static String DEFAULT_SRC_DIR     = "src/main/frege"     // TODO: should this come from a source set?
     static String DEFAULT_DOCS_SUBDIR = "docs/frege"       // TODO: should this come from a convention?
+
+    Boolean help = false
 
     @Optional
     @InputDirectory
@@ -45,11 +65,16 @@ class DocTask extends DefaultTask {
         action.setClasspath(project.files(project.configurations.compile) + project.files("$project.buildDir/classes/main"))
 
         def args = []
-        if (verbose) args << '-v'
-        args << '-d' << targetDir.absolutePath
-        if (exclude) args << '-x' << exclude
-        args << module
+        if (help) {
+            args << "-h"
+        } else {
+            if (verbose) args << '-v'
+            args << '-d' << targetDir.absolutePath
+            if (exclude) args << '-x' << exclude
+            args << module
+        }
 
+        logger.info("Calling Frege Doc with args: '$args'")
         action.args args
         action.execute()
     }
