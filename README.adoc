@@ -3,6 +3,14 @@
 
 This is the official Gradle plugin to compile Frege projects (https://github.com/Frege/frege).  See the example project, https://github.com/mperry/frege-gradle-example, for how to use this plugin.
 
+This plugin creates the following tasks:
+- compileFrege
+- compileTestFrege
+- fregeRepl
+- fregeQuickCheck
+- fregeDoc
+- fregeNativeGen
+
 = Usage
 
 See https://plugins.gradle.org/plugin/org.frege-lang
