@@ -1,6 +1,7 @@
 package frege.gradle
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
@@ -55,10 +56,8 @@ class QuickCheckTask extends DefaultTask {
     String moduleName
     String moduleDirectory
     String moduleJar
-    List<String> classpathDirectories =
-        ["$project.buildDir/classes/main/"]
-//        ["$project.buildDir/classes/main/", "$project.buildDir/classes/test/"]
-
+    List<String> classpathDirectories = ["$project.buildDir/classes/main", "$project.buildDir/classes/test"]
+    String moduleDir = "$project.buildDir/classes/test"
 
     @TaskAction
     void runQuickCheck() {
@@ -71,7 +70,9 @@ class QuickCheckTask extends DefaultTask {
         action.standardOutput = System.out
         action.errorOutput = System.err
 
-        action.setClasspath(project.files(project.configurations.testRuntime))
+        def f = project.files(classpathDirectories.collect { s -> new File(s) })
+        action.setClasspath(project.files(project.configurations.compile).plus(project.files(project.configurations.testRuntime)).plus(f))
+
 
         project.configurations.testRuntime.each { println it }
 
@@ -80,13 +81,10 @@ class QuickCheckTask extends DefaultTask {
 
         } else {
             if (verbose) args << "-v"
-
-            args = args + classpathDirectories
-//            args.action.args(classpathDirectories) // test all in build dir and below build/classes/test/
-
-
+            if (listAvailable) args << "-l"
+            args = args + [moduleDir]
         }
-
+        logger.info("Calling Frege QuickCheck with args: '$args'")
         action.args args
         action.execute()
     }

@@ -19,7 +19,7 @@ class CompileTask extends DefaultTask {
     static String DEFAULT_TEST_CLASSES_DIR = "classes/test"
     static String DEFAULT_TEST_SRC_DIR = "src/test/frege"
 
-    static Boolean USE_EXTERNAl = false
+    static Boolean USE_EXTERNAl = true
 
     Boolean help = false
 
