@@ -17,9 +17,10 @@ class FregePlugin implements Plugin<Project> {
 
         }
         project.tasks.classes.dependsOn("compileFrege")
+        project.tasks.compileFrege.dependsOn("compileJava")
 
         project.task('compileTestFrege', type: CompileTask, group: 'Build') {
-            sourceDir = CompileTask.deduceTestSrcDir(project)
+//            sourcePaths = [CompileTask.deduceTestSrcDir(project)]
             outputDir = CompileTask.deduceTestClassesDir(project)
 //            logger.info("compileTestFrege debug")
 //            logger.info("projectDir ${project.projectDir}")
@@ -29,6 +30,7 @@ class FregePlugin implements Plugin<Project> {
             ).map { d -> [d.absolutePath] }.orSome([])
         }
         project.tasks.testClasses.dependsOn("compileTestFrege")
+        project.tasks.compileTestFrege.dependsOn("compileTestJava")
 
         def replTask = project.task('fregeRepl', type: ReplTask, group: 'Tools', dependsOn: 'compileFrege')
         replTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks

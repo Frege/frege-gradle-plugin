@@ -9,7 +9,6 @@ import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.api.internal.file.FileResolver
-import fj.data.Option
 
 class CompileTask extends DefaultTask {
 
@@ -50,8 +49,8 @@ class CompileTask extends DefaultTask {
     @Optional @Input
     String module = ""
 
-    @Optional @InputDirectory
-    File sourceDir = deduceSourceDir(project)
+//    @Optional @InputDirectory
+    List<File> sourcePaths = deduceSourceDir(project)
 
     @Optional @OutputDirectory
     File outputDir = deduceClassesDir(project)
@@ -63,8 +62,9 @@ class CompileTask extends DefaultTask {
         new File(projectDir, subdir).exists() ?  new File(projectDir, subdir) : null
     }
 
-    static File deduceSourceDir(Project project) {
-        deduceSourceDir(project.projectDir, DEFAULT_SRC_DIR)
+    static List<File> deduceSourceDir(Project project) {
+        def d = deduceSourceDir(project.projectDir, DEFAULT_SRC_DIR)
+        d == null ? [] : [d]
     }
 
     static File deduceClassesDir(File projectDir, String subdir) {
@@ -160,9 +160,10 @@ class CompileTask extends DefaultTask {
         if (skipCompile)
             args << "-j"
 
-        if (sourceDir != null) {
+        if (sourcePaths != null && !sourcePaths.isEmpty()) {
+            logger.info("sourcePaths1: $sourcePaths")
             args << "-sp"
-            args << sourceDir.absolutePath
+            args << sourcePaths.collect { d -> d.absolutePath }.join(":")
         }
 
         args << "-d"
@@ -176,8 +177,9 @@ class CompileTask extends DefaultTask {
 
         if (!module && !extraArgs) {
             logger.info "no module and no extra args given: compiling all of the sourceDir"
-            if (sourceDir != null) {
-                args << sourceDir.absolutePath
+            logger.info("sourcePaths2: $sourcePaths")
+            if (sourcePaths != null && !sourcePaths.isEmpty()) {
+                args << sourcePaths.collect { d -> d.absolutePath }.join(":")
             }
 
         } else if (module) {
