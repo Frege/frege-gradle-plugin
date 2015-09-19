@@ -1,9 +1,11 @@
 package frege.gradle
 
+import groovy.transform.TypeChecked
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import fj.data.Option
 
+//@TypeChecked
 class FregePlugin implements Plugin<Project> {
 
     void apply(Project project) {
@@ -16,8 +18,8 @@ class FregePlugin implements Plugin<Project> {
         project.task('compileFrege', type: CompileTask, group: 'Build') << {
 
         }
-        project.tasks.classes.dependsOn("compileFrege")
-        project.tasks.compileFrege.dependsOn("compileJava")
+        project.tasks["classes"].dependsOn("compileFrege")
+        project.tasks["compileFrege"].dependsOn("compileJava")
 
         project.task('compileTestFrege', type: CompileTask, group: 'Build') {
 //            sourcePaths = [CompileTask.deduceTestSrcDir(project)]
@@ -25,9 +27,9 @@ class FregePlugin implements Plugin<Project> {
 //            logger.info("compileTestFrege debug")
 //            logger.info("projectDir ${project.projectDir}")
 //            logger.info("defaultSrc ${CompileTask.DEFAULT_SRC_DIR}")
-            fregePackageDirs = Option.fromNull(
+            fregePaths = Option.fromNull(
                 CompileTask.deduceClassesDir(project)
-            ).map { d -> [d.absolutePath] }.orSome([])
+            ).map{d -> [d]}.orSome([])
         }
         project.tasks.testClasses.dependsOn("compileTestFrege")
         project.tasks.compileTestFrege.dependsOn("compileTestJava")

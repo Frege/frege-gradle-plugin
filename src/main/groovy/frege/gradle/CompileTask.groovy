@@ -3,14 +3,20 @@ package frege.gradle
 import frege.compiler.Main
 import frege.prelude.PreludeBase
 import frege.runtime.Lambda
+import groovy.transform.TypeChecked
+import groovy.transform.TypeCheckingMode
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.api.internal.file.FileResolver
 
+@TypeChecked
 class CompileTask extends DefaultTask {
+
+    // see help at https://github.com/Frege/frege/wiki/Compiler-Manpage
 
     static String DEFAULT_CLASSES_SUBDIR = "classes/main"       // TODO: should this come from a convention?
     static String DEFAULT_SRC_DIR        = "src/main/frege"     // TODO: should this come from a source set?
@@ -23,10 +29,12 @@ class CompileTask extends DefaultTask {
     Boolean help = false
 
     @Optional @Input
-    String xss = "4m"
+    String stackSize = "4m"
 
     @Optional @Input
     boolean hints = false
+
+    boolean optimize = false
 
     @Optional @Input
     boolean verbose = false
@@ -36,6 +44,16 @@ class CompileTask extends DefaultTask {
 
     @Optional @Input
     boolean make = true
+
+    boolean compileGeneratedJava = true
+
+    String target = ""
+
+    boolean comments = false
+
+    boolean suppressWarnings = false
+
+    String explain = ""
 
     @Optional @Input
     boolean skipCompile = false
@@ -49,14 +67,23 @@ class CompileTask extends DefaultTask {
     @Optional @Input
     String module = ""
 
+    @Optional
+    List<File> fregePaths = []
+
 //    @Optional @InputDirectory
     List<File> sourcePaths = deduceSourceDir(project)
 
     @Optional @OutputDirectory
     File outputDir = deduceClassesDir(project)
 
-    @Optional
-    List<String> fregePackageDirs = []
+    List<String> allJvmArgs = []
+
+    String encoding = ""
+
+    String prefix = ""
+
+    // TODO: Missing presentation of types
+
 
     static File deduceSourceDir(File projectDir, String subdir) {
         new File(projectDir, subdir).exists() ?  new File(projectDir, subdir) : null
@@ -85,6 +112,7 @@ class CompileTask extends DefaultTask {
 
 
     @TaskAction
+    @TypeChecked(TypeCheckingMode.SKIP)
     void executeCompile() {
 
         if (! outputDir.exists() ) {
@@ -106,9 +134,12 @@ class CompileTask extends DefaultTask {
         if (help) {
             args << "-help"
         } else {
-            List jvmargs = []
-            if (xss)
-                jvmargs << "-Xss$xss"
+            def jvmargs = allJvmArgs
+            if (!allJvmArgs.isEmpty()) {
+//                jvmargs << allJvmArgs
+            } else if (stackSize) {
+                jvmargs << "-Xss$stackSize"
+            }
             action.setJvmArgs(jvmargs)
             args = allArgs ? allArgs.split().toList() : assembleArguments()
         }
@@ -126,6 +157,7 @@ class CompileTask extends DefaultTask {
         }
     }
 
+
     void compile(String[] paramArrayOfString) {
         long l1 = System.nanoTime();
         Integer localInteger = frege.runtime.Runtime.runMain(
@@ -140,9 +172,10 @@ class CompileTask extends DefaultTask {
         }
     }
 
-    List<String> totalFregeClasspath(Project p, List<String> fp) {
+    @TypeChecked(TypeCheckingMode.SKIP)
+    List<File> totalFregeClasspath(List<File> fp) {
         def result = []
-        result.addAll(project.files(project.configurations.compile).getFiles().toList().collect { File f -> f.absolutePath })
+        result.addAll(project.files(project.configurations.compile).getFiles().toList())
         result.addAll(fp)
         result
     }
@@ -151,43 +184,73 @@ class CompileTask extends DefaultTask {
         List args = []
         if (hints)
             args << "-hints"
-        if (inline)
+        if (optimize) {
+            args << "-O"
+            args << "-inline"
+        }
+        if (inline & !optimize)
             args << "-inline"
         if (make)
             args << "-make"
+        if (!compileGeneratedJava) args << "-j"
+        if (target != "") {
+            args << "-target"
+            args << target
+        }
+        if (comments) args << "-comments"
+        if (suppressWarnings) args << "-nowarn"
+        if (explain != "") {
+            args << "-explain"
+            args << explain
+        }
         if (verbose)
             args << "-v"
         if (skipCompile)
             args << "-j"
 
+        def fp = USE_EXTERNAl ? fregePaths : totalFregeClasspath(fregePaths)
+        if (!fp.isEmpty()) {
+            args << "-fp"
+            args << fp.collect{f -> f.absolutePath}.join(File.pathSeparator)
+        }
+
         if (sourcePaths != null && !sourcePaths.isEmpty()) {
             logger.info("sourcePaths1: $sourcePaths")
             args << "-sp"
-            args << sourcePaths.collect { d -> d.absolutePath }.join(":")
+            args << sourcePaths.collect{d -> d.absolutePath}.join(File.pathSeparator)
+        }
+
+        if (encoding != "") {
+            args << "-enc"
+            args << encoding
+        }
+
+        if (prefix != "") {
+            args << "-prefix"
+            args << prefix
         }
 
         args << "-d"
         args << outputDir
 
-        def fp = USE_EXTERNAl ? fregePackageDirs : totalFregeClasspath(project, fregePackageDirs)
-        if (!fp.isEmpty()) {
-            args << "-fp"
-            args << fp.join(";")
-        }
-
         if (!module && !extraArgs) {
             logger.info "no module and no extra args given: compiling all of the sourceDir"
             logger.info("sourcePaths2: $sourcePaths")
             if (sourcePaths != null && !sourcePaths.isEmpty()) {
-                args << sourcePaths.collect { d -> d.absolutePath }.join(":")
+                if (sourcePaths.size() != 1) {
+                    throw new GradleException("No module specified and module cannot be deduced from a source path with multiple paths")
+                } else {
+                    args << sourcePaths.collect{d -> d.absolutePath}.join(File.pathSeparator)
+                }
             }
 
         } else if (module) {
             logger.info "compiling module '$module'"
             args << module
         } else {
-            args = args + extraArgs.split().toList()
+            args = (args + extraArgs.split().toList()).toList()
         }
+
         args
     }
 }
