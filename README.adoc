@@ -18,3 +18,7 @@ See https://plugins.gradle.org/plugin/org.frege-lang
 = Continuous Integration
 
 The Travis CI build of this repository is at https://travis-ci.org/Frege/frege-gradle-plugin.
+
+= Snapshots
+
+Snapshot releases are available from the Sonatype repository at https://oss.sonatype.org/content/groups/public/org/frege-lang.

@@ -1,5 +1,7 @@
+
 apply plugin: "groovy"
 apply plugin: "maven"
+apply plugin: "signing"
 
 defaultTasks "build"
 
@@ -41,6 +43,8 @@ ext {
         }
     } else println "cannot find '$propfile.absolutePath'"
 }
+
+apply from: "gradle/sonatype.gradle"
 
 version = projectVersion
 group = projectGroup
