@@ -82,6 +82,8 @@ class CompileTask extends DefaultTask {
 
     String prefix = ""
 
+    String mainClass = "frege.compiler.Main"
+
     // TODO: Missing presentation of types
 
 
@@ -124,7 +126,7 @@ class CompileTask extends DefaultTask {
 
         FileResolver fileResolver = getServices().get(FileResolver.class)
         JavaExecAction action = new DefaultJavaExecAction(fileResolver)
-        action.setMain("frege.compiler.Main")
+        action.setMain(mainClass)
         def pf = project.files(project.configurations.compile)
         def path = pf.getAsPath()
         logger.info("Compile configuation as path: $path")
@@ -234,15 +236,15 @@ class CompileTask extends DefaultTask {
         args << outputDir
 
         if (!module && !extraArgs) {
-            logger.info "no module and no extra args given: compiling all of the sourceDir"
-            logger.info("sourcePaths2: $sourcePaths")
-            if (sourcePaths != null && !sourcePaths.isEmpty()) {
-                if (sourcePaths.size() != 1) {
-                    throw new GradleException("No module specified and module cannot be deduced from a source path with multiple paths")
-                } else {
-                    args << sourcePaths.collect{d -> d.absolutePath}.join(File.pathSeparator)
-                }
-            }
+//            logger.info "no module and no extra args given: compiling all of the sourceDir"
+//            logger.info("sourcePaths2: $sourcePaths")
+//            if (sourcePaths != null && !sourcePaths.isEmpty()) {
+//                if (sourcePaths.size() != 1) {
+//                    throw new GradleException("No module specified and module cannot be deduced from a source path with multiple paths")
+//                } else {
+//                    args << sourcePaths.collect{d -> d.absolutePath}.join(File.pathSeparator)
+//                }
+//            }
 
         } else if (module) {
             logger.info "compiling module '$module'"
