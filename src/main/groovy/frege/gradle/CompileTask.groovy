@@ -9,12 +9,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.tasks.*
+import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.api.internal.file.FileResolver
 
 @TypeChecked
-class CompileTask extends DefaultTask {
+class CompileTask extends AbstractCompile {
 
     // see help at https://github.com/Frege/frege/wiki/Compiler-Manpage
 
@@ -112,10 +113,10 @@ class CompileTask extends DefaultTask {
         deduceSourceDir(project.projectDir, DEFAULT_TEST_SRC_DIR)
     }
 
-
+    @Override
     @TaskAction
     @TypeChecked(TypeCheckingMode.SKIP)
-    void executeCompile() {
+    void compile() {
 
         if (! outputDir.exists() ) {
             logger.info "Creating output directory '${outputDir.absolutePath}'."
@@ -256,4 +257,5 @@ class CompileTask extends DefaultTask {
 
         args
     }
+
 }
