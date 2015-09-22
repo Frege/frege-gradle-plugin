@@ -130,7 +130,8 @@ class CompileTask extends DefaultTask {
         def pf = project.files(project.configurations.compile)
         def path = pf.getAsPath()
         logger.info("Compile configuation as path: $path")
-        action.setClasspath(project.files(project.configurations.compile))
+
+        action.setClasspath(project.files(project.configurations.compile) + project.files(deduceClassesDir(project)))
 
         def args = []
         if (help) {
