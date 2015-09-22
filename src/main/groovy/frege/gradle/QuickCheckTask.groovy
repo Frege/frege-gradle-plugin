@@ -58,6 +58,7 @@ class QuickCheckTask extends DefaultTask {
     String moduleJar
     List<String> classpathDirectories = ["$project.buildDir/classes/main", "$project.buildDir/classes/test"]
     String moduleDir = "$project.buildDir/classes/test"
+    List<String> allJvmArgs = []
 
     @TaskAction
     void runQuickCheck() {
@@ -82,6 +83,9 @@ class QuickCheckTask extends DefaultTask {
         } else {
             if (verbose) args << "-v"
             if (listAvailable) args << "-l"
+            if (!allJvmArgs.isEmpty()) {
+                action.setJvmArgs(allJvmArgs)
+            }
             args = args + [moduleDir]
         }
         logger.info("Calling Frege QuickCheck with args: '$args'")
