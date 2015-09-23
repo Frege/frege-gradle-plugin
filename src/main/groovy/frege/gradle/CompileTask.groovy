@@ -26,6 +26,8 @@ class CompileTask extends DefaultTask {
 
     static Boolean USE_EXTERNAl = true
 
+    boolean enabled = true
+
     Boolean help = false
 
     @Optional @Input
@@ -71,7 +73,7 @@ class CompileTask extends DefaultTask {
     List<File> fregePaths = []
 
 //    @Optional @InputDirectory
-    List<File> sourcePaths = deduceSourceDir(project)
+    List<File> sourcePaths = [deduceSourceDir(project)]
 
     @Optional @OutputDirectory
     File outputDir = deduceClassesDir(project)
@@ -88,12 +90,14 @@ class CompileTask extends DefaultTask {
 
 
     static File deduceSourceDir(File projectDir, String subdir) {
-        new File(projectDir, subdir).exists() ?  new File(projectDir, subdir) : null
+//        new File(projectDir, subdir).exists() ?  new File(projectDir, subdir) : null
+        new File(projectDir, subdir)
     }
 
-    static List<File> deduceSourceDir(Project project) {
+    static File deduceSourceDir(Project project) {
         def d = deduceSourceDir(project.projectDir, DEFAULT_SRC_DIR)
-        d == null ? [] : [d]
+        d
+//        d == null ? [] : [d]
     }
 
     static File deduceClassesDir(File projectDir, String subdir) {
@@ -116,6 +120,11 @@ class CompileTask extends DefaultTask {
     @TaskAction
     @TypeChecked(TypeCheckingMode.SKIP)
     void executeCompile() {
+
+        if (!enabled) {
+            logger.info("No module found: '$module'.")
+            return;
+        }
 
         if (! outputDir.exists() ) {
             logger.info "Creating output directory '${outputDir.absolutePath}'."
