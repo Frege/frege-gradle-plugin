@@ -243,7 +243,6 @@ class CompileTask extends DefaultTask {
         }
 
         if (sourcePaths != null && !sourcePaths.isEmpty()) {
-            logger.info("sourcePaths1: $sourcePaths")
             args << "-sp"
             args << sourcePaths.collect{d -> d.absolutePath}.join(File.pathSeparator)
         }
