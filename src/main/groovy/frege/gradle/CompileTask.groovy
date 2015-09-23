@@ -6,8 +6,9 @@ import frege.runtime.Lambda
 import groovy.transform.TypeChecked
 import groovy.transform.TypeCheckingMode
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.*
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
@@ -26,8 +27,10 @@ class CompileTask extends DefaultTask {
 
     static Boolean USE_EXTERNAl = true
 
+    @Optional @Input
     boolean enabled = true
 
+    @Optional @Input
     Boolean help = false
 
     @Optional @Input
@@ -36,6 +39,7 @@ class CompileTask extends DefaultTask {
     @Optional @Input
     boolean hints = false
 
+    @Optional @Input
     boolean optimize = false
 
     @Optional @Input
@@ -47,14 +51,19 @@ class CompileTask extends DefaultTask {
     @Optional @Input
     boolean make = true
 
+    @Optional @Input
     boolean compileGeneratedJava = true
 
+    @Optional @Input
     String target = ""
 
+    @Optional @Input
     boolean comments = false
 
+    @Optional @Input
     boolean suppressWarnings = false
 
+    @Optional @Input
     String explain = ""
 
     @Optional @Input
@@ -69,35 +78,35 @@ class CompileTask extends DefaultTask {
     @Optional @Input
     String module = ""
 
-    @Optional
+    @Optional @Input
     List<File> fregePaths = []
 
-//    @Optional @InputDirectory
+    @Optional @Input
     List<File> sourcePaths = [deduceSourceDir(project)]
 
     @Optional @OutputDirectory
     File outputDir = deduceClassesDir(project)
 
-    List<String> allJvmArgs = []
-
-    String encoding = ""
-
-    String prefix = ""
-
+    @Optional @Input
     String mainClass = "frege.compiler.Main"
 
-    // TODO: Missing presentation of types
+    @Optional @Input
+    List<String> allJvmArgs = []
 
+    @Optional @Input
+    String encoding = ""
+
+    @Optional @Input
+    String prefix = ""
+
+    // TODO: Missing presentation of types (ascii, symbols, latin, greek, faktur)
 
     static File deduceSourceDir(File projectDir, String subdir) {
-//        new File(projectDir, subdir).exists() ?  new File(projectDir, subdir) : null
         new File(projectDir, subdir)
     }
 
     static File deduceSourceDir(Project project) {
-        def d = deduceSourceDir(project.projectDir, DEFAULT_SRC_DIR)
-        d
-//        d == null ? [] : [d]
+        deduceSourceDir(project.projectDir, DEFAULT_SRC_DIR)
     }
 
     static File deduceClassesDir(File projectDir, String subdir) {
@@ -112,47 +121,41 @@ class CompileTask extends DefaultTask {
         deduceClassesDir(project.buildDir, DEFAULT_TEST_CLASSES_DIR)
     }
 
-    static File deduceTestSrcDir(Project project) {
+    static File deduceTestSourceDir(Project project) {
         deduceSourceDir(project.projectDir, DEFAULT_TEST_SRC_DIR)
     }
 
-
     @TaskAction
-    @TypeChecked(TypeCheckingMode.SKIP)
     void executeCompile() {
 
         if (!enabled) {
-            logger.info("No module found: '$module'.")
+            logger.info("Frege compiler disabled.")
             return;
         }
 
-        if (! outputDir.exists() ) {
+        if (!outputDir.exists() ) {
             logger.info "Creating output directory '${outputDir.absolutePath}'."
             outputDir.mkdirs()
         }
-
         // access extension configuration values as ${project.frege.key1}
 
         FileResolver fileResolver = getServices().get(FileResolver.class)
         JavaExecAction action = new DefaultJavaExecAction(fileResolver)
         action.setMain(mainClass)
-        def pf = project.files(project.configurations.compile)
-        def path = pf.getAsPath()
-        logger.info("Compile configuation as path: $path")
 
-        action.setClasspath(project.files(project.configurations.compile) + project.files(deduceClassesDir(project)))
+        logConfigurationInfo()
+
+        action.setClasspath(actionClasspath(project))
 
         def args = []
         if (help) {
             args << "-help"
         } else {
-            def jvmargs = allJvmArgs
-            if (!allJvmArgs.isEmpty()) {
-//                jvmargs << allJvmArgs
-            } else if (stackSize) {
-                jvmargs << "-Xss$stackSize"
+            def jvmArgs = allJvmArgs
+            if (jvmArgs.isEmpty()) {
+                jvmArgs << "-Xss$stackSize".toString()
             }
-            action.setJvmArgs(jvmargs)
+            action.setJvmArgs(jvmArgs)
             args = allArgs ? allArgs.split().toList() : assembleArguments()
         }
 
@@ -162,14 +165,23 @@ class CompileTask extends DefaultTask {
         if (USE_EXTERNAl) {
             action.execute()
         } else {
-            def args2 = args as String[]
-//            frege.compiler.Main.main(args2)
-            compile(args2)
-//            frege.compiler.Main.runCompiler(args2)
+            compile(args as String[])
         }
     }
 
+    void logConfigurationInfo() {
+        def path = project.files(compileConfig()).getAsPath()
+        logger.info("Compile configuation as path: $path")
 
+    }
+
+    FileCollection actionClasspath(Project p) {
+        p.files(compileConfig()) + p.files(deduceClassesDir(p))
+    }
+
+    // TODO: This should be removed or integrated so an external Java process does not need to be started.
+    // The Java generated uses System.exit() which does not work well with Gradle
+    // This was taken from the frege fork /compiler1/build/classes/main/afrege/compiler/Main.java:main()
     void compile(String[] paramArrayOfString) {
         long l1 = System.nanoTime();
         Integer localInteger = frege.runtime.Runtime.runMain(
@@ -184,15 +196,19 @@ class CompileTask extends DefaultTask {
         }
     }
 
-    @TypeChecked(TypeCheckingMode.SKIP)
     List<File> totalFregeClasspath(List<File> fp) {
         def result = []
-        result.addAll(project.files(project.configurations.compile).getFiles().toList())
+        result.addAll(project.files(compileConfig()).getFiles().toList())
         result.addAll(fp)
         result
     }
 
-    protected List assembleArguments() {
+    @TypeChecked(TypeCheckingMode.SKIP)
+    Configuration compileConfig() {
+        project.configurations.compile
+    }
+
+    protected List<String> assembleArguments() {
         List args = []
         if (hints)
             args << "-hints"
@@ -245,18 +261,7 @@ class CompileTask extends DefaultTask {
         args << "-d"
         args << outputDir
 
-        if (!module && !extraArgs) {
-//            logger.info "no module and no extra args given: compiling all of the sourceDir"
-//            logger.info("sourcePaths2: $sourcePaths")
-//            if (sourcePaths != null && !sourcePaths.isEmpty()) {
-//                if (sourcePaths.size() != 1) {
-//                    throw new GradleException("No module specified and module cannot be deduced from a source path with multiple paths")
-//                } else {
-//                    args << sourcePaths.collect{d -> d.absolutePath}.join(File.pathSeparator)
-//                }
-//            }
-
-        } else if (module) {
+        if (!module.isEmpty()) {
             logger.info "compiling module '$module'"
             args << module
         } else {
@@ -265,4 +270,5 @@ class CompileTask extends DefaultTask {
 
         args
     }
+
 }
