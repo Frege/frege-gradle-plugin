@@ -13,14 +13,13 @@ class FregePlugin implements Plugin<Project> {
         // Workaround to build proper jars on Windows, see https://github.com/Frege/frege-gradle-plugin/issues/9
         System.setProperty("file.encoding", "UTF-8")
 
-//        project.apply(plugin: 'base')
         project.plugins.apply(JavaPlugin)
         def e = (FregePluginExtension) project.extensions.create("frege", FregePluginExtension)
 
         project.task('compileFrege', type: CompileTask, group: 'Build', dependsOn: "compileJava") {
             module = CompileTask.deduceSourceDir(project).absolutePath
         }
-        project.tasks["classes"].dependsOn("compileFrege")
+        project.tasks.classes.dependsOn("compileFrege")
 
         project.task('compileTestFrege', type: CompileTask, group: 'Build', dependsOn: "compileTestJava") {
             module = CompileTask.deduceTestSourceDir(project).absolutePath
