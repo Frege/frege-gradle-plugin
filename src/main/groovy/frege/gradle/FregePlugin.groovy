@@ -32,12 +32,12 @@ class FregePlugin implements Plugin<Project> {
         def replTask = project.task('fregeRepl', type: ReplTask, group: 'Tools', dependsOn: 'compileFrege')
         replTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks
 
-        def checkTask = project.task('fregeQuickCheck', type: QuickCheckTask, group: 'Tools', dependsOn: 'testClasses')
+        def checkTask = project.task('fregeQuickCheck', type: QuickCheckTask, group: 'Verification', dependsOn: 'testClasses')
         checkTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks
 
         project.tasks.test.dependsOn("fregeQuickCheck")
 
-        project.task('fregeDoc', type: DocTask, group: 'Tools', dependsOn: 'compileFrege')
+        project.task('fregeDoc', type: DocTask, group: 'Documentation', dependsOn: 'compileFrege')
 
         project.task('fregeNativeGen', type: NativeGenTask, group: 'Tools')
 
