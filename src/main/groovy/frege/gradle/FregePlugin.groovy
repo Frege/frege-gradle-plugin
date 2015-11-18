@@ -1,20 +1,13 @@
 package frege.gradle
-
-import groovy.transform.TypeChecked
+import fj.data.Option
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import fj.data.Option
-import org.gradle.api.plugins.JavaPlugin
-
 //@TypeChecked
 class FregePlugin implements Plugin<Project> {
 
     void apply(Project project) {
-        // Workaround to build proper jars on Windows, see https://github.com/Frege/frege-gradle-plugin/issues/9
-        System.setProperty("file.encoding", "UTF-8")
 
-        project.plugins.apply(JavaPlugin)
-        def e = (FregePluginExtension) project.extensions.create("frege", FregePluginExtension)
+        project.plugins.apply(FregeBasePlugin)
 
         project.task('compileFrege', type: CompileTask, group: 'Build', dependsOn: "compileJava") {
             module = CompileTask.deduceSourceDir(project).absolutePath

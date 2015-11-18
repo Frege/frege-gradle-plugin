@@ -81,7 +81,7 @@ class CompileTask extends DefaultTask {
     @Optional @Input
     List<File> fregePaths = []
 
-    @Optional @Input
+    @InputFiles
     List<File> sourcePaths = [deduceSourceDir(project)]
 
     @Optional @OutputDirectory

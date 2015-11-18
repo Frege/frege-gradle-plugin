@@ -1,14 +1,15 @@
 package frege.plugin
-
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class FregePluginIntegTest extends Specification {
 
+    public static final String DEFAULT_FREGE_VERSION = "3.23.370-g898bc8c"
     @Rule
     final TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
@@ -18,6 +19,15 @@ class FregePluginIntegTest extends Specification {
     def setup() {
         buildFile = testProjectDir.newFile('build.gradle')
 
+        buildFile << """
+            plugins {
+                id 'org.frege-lang'
+            }
+
+            repositories {
+                jcenter()
+            }
+        """
         def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.txt")
         if (pluginClasspathResource == null) {
             // try again via file reference
@@ -29,26 +39,36 @@ class FregePluginIntegTest extends Specification {
         pluginClasspath = pluginClasspathResource.readLines().collect { new File(it) }
     }
 
-    def "can compile frege production code"() {
+    def "can handle non existing source directories"() {
         given:
         buildFile << """
-            plugins {
-                id 'org.frege-lang'
-            }
-
-            repositories {
-                jcenter()
-            }
-
             dependencies {
-                compile "org.frege-lang:frege:3.22.367-g2737683"
+                compile "org.frege-lang:frege:$DEFAULT_FREGE_VERSION"
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('classes')
+                .withPluginClasspath(pluginClasspath)
+                .build()
+        then:
+        result.task(":compileFrege") != null
+    }
+
+    @Unroll
+    def "can compile and run frege code"() {
+        given:
+        buildFile << """
+            dependencies {
+                compile "org.frege-lang:frege:$fregeVersion"
             }
 
             task sayHello(type: JavaExec){
                 classpath = sourceSets.main.runtimeClasspath
                 main = 'HelloFrege'
             }
-
         """
 
         testProjectDir.newFolder("src", "main", "frege")
@@ -65,6 +85,7 @@ main _ = do
 
         when:
         def result = GradleRunner.create()
+                .withGradleVersion(gradleVersion)
                 .withProjectDir(testProjectDir.root)
                 .withArguments('sayHello')
                 .withPluginClasspath(pluginClasspath)
@@ -73,5 +94,12 @@ main _ = do
         then:
         result.output.contains("Hello Frege!")
         result.task(":sayHello").outcome == SUCCESS
+
+        where:
+        fregeVersion          | gradleVersion
+        DEFAULT_FREGE_VERSION | "2.9"
+        DEFAULT_FREGE_VERSION | "2.8"
+        "3.22.367-g2737683"   | "2.9"
+        "3.22.367-g2737683"   | "2.8"
     }
 }
