@@ -1,4 +1,4 @@
-package frege.gradle
+package frege.gradle.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.file.FileResolver
@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
-class DocTask extends DefaultTask {
+class FregeDoc extends DefaultTask {
 
     /* Usage: java -jar fregec.jar frege.tools.Doc [-v] [-d opt] [-x mod,...] modules ...
      * -v              print a message for each processed module
