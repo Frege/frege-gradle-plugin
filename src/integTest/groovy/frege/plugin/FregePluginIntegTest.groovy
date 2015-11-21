@@ -90,7 +90,7 @@ main _ = do
         def result = GradleRunner.create()
                 .withGradleVersion(gradleVersion)
                 .withDebug(true).withProjectDir(testProjectDir.root)
-                .withArguments('sayHello', '--stacktrace', '-i')
+                .withArguments('sayHello')
                 .withPluginClasspath(pluginClasspath)
                 .build()
 
@@ -101,8 +101,8 @@ main _ = do
         where:
         fregeVersion          | gradleVersion
         DEFAULT_FREGE_VERSION | "2.9"
-//        DEFAULT_FREGE_VERSION | "2.8"
-//        "3.22.367-g2737683"   | "2.9"
-//        "3.22.367-g2737683"   | "2.8"
+        DEFAULT_FREGE_VERSION | "2.8"
+        "3.22.367-g2737683"   | "2.9"
+        "3.22.367-g2737683"   | "2.8"
     }
 }
