@@ -89,7 +89,7 @@ main _ = do
         when:
         def result = GradleRunner.create()
                 .withGradleVersion(gradleVersion)
-                .withDebug(true).withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.root)
                 .withArguments('sayHello')
                 .withPluginClasspath(pluginClasspath)
                 .build()
