@@ -64,21 +64,14 @@ class FregePluginIntegTest extends Specification {
             dependencies {
                 compile "org.frege-lang:frege:$fregeVersion"
             }
-
-            task sayHello(type: JavaExec){
-                doFirst {
-                    println classpath.files
-                }
-                classpath = sourceSets.main.runtimeClasspath
-                main = 'HelloFrege'
-            }
+            ${sayHelloTask()}
         """
 
-        testProjectDir.newFolder("src", "main", "frege")
-        def fregeSourceFile = testProjectDir.newFile("src/main/frege/HelloFrege.fr")
+        testProjectDir.newFolder("src", "main", "frege", "org", "frege")
+        def fregeSourceFile = testProjectDir.newFile("src/main/frege/org/frege/HelloFrege.fr")
 
         fregeSourceFile << """
-module HelloFrege where
+module org.frege.HelloFrege where
 
 greeting = "Hello Frege!"
 
@@ -104,5 +97,65 @@ main _ = do
         DEFAULT_FREGE_VERSION | "2.8"
         "3.22.367-g2737683"   | "2.9"
         "3.22.367-g2737683"   | "2.8"
+    }
+
+
+    def "can reference java from frege"() {
+        given:
+        buildFile << """
+            dependencies {
+                compile "org.frege-lang:frege:$DEFAULT_FREGE_VERSION"
+            }
+
+            ${sayHelloTask()}
+        """
+
+        and:
+        testProjectDir.newFolder("src", "main", "frege", "org", "frege")
+
+        def fregeSourceFile = testProjectDir.newFile("src/main/frege/org/frege/HelloFrege.fr")
+
+        fregeSourceFile << """
+module org.frege.HelloFrege where
+
+data StaticHello = pure native org.frege.StaticHello where
+    pure native helloJava org.frege.StaticHello.helloJava :: () -> String
+
+main _ = do
+    println(StaticHello.helloJava())
+
+"""
+        testProjectDir.newFolder("src", "main", "java", "org", "frege")
+        def javaSourceFile = testProjectDir.newFile("src/main/java/org/frege/StaticHello.java")
+
+        javaSourceFile << """
+package org.frege;
+
+public class StaticHello {
+    public static String helloJava() {
+        return "hello from java";
+    }
+}
+"""
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('sayHello')
+                .withPluginClasspath(pluginClasspath)
+                .build()
+        then:
+        result.task(":compileJava").outcome == SUCCESS
+        result.task(":compileFrege").outcome == SUCCESS
+
+        result.output.contains("hello from java")
+    }
+
+
+    def sayHelloTask() {
+        return """task sayHello(type: JavaExec){
+            classpath = sourceSets.main.runtimeClasspath
+            main = 'org.frege.HelloFrege'
+        }"""
     }
 }
