@@ -1,8 +1,6 @@
 package frege.gradle.tasks
 import groovy.transform.TypeChecked
-import groovy.transform.TypeCheckingMode
 import org.gradle.api.Action
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -19,59 +17,44 @@ class FregeCompile extends AbstractCompile {
     @Input
     String stackSize = "4m"
 
-    @Optional
     @Input
     boolean hints = false
 
-    @Optional
     @Input
     boolean optimize = false
 
-    @Optional
-    @Input
     boolean verbose = false
 
-    @Optional
     @Input
     boolean inline = true
 
-    @Optional
     @Input
     boolean make = true
 
-    @Optional
     @Input
     boolean compileGeneratedJava = true
 
-    @Optional
     @Input
     String target = ""
 
-    @Optional
     @Input
     boolean comments = false
 
-    @Optional
     @Input
     boolean suppressWarnings = false
 
-    @Optional
     @Input
     String explain = ""
 
-    @Optional
     @Input
     String extraArgs = ""
 
-    @Optional
     @Input
     String allArgs = "" // this is an option to overrule all other settings
 
-    @Optional
     @Input
     String module = ""
 
-    @Optional
     @Input
     List<File> fregePaths = []
 
@@ -82,11 +65,9 @@ class FregeCompile extends AbstractCompile {
     @Input
     List<String> allJvmArgs = []
 
-    @Optional
     @Input
     String encoding = ""
 
-    @Optional
     @Input
     String prefix = ""
 
@@ -95,8 +76,6 @@ class FregeCompile extends AbstractCompile {
     @Override
     @TaskAction
     protected void compile() {
-        logConfigurationInfo()
-
         def jvmArgs = allJvmArgs
         if (jvmArgs.isEmpty()) {
             jvmArgs << "-Xss$stackSize".toString()
@@ -123,16 +102,6 @@ class FregeCompile extends AbstractCompile {
             sourcePaths.add(project.file(source))
         }
         return this;
-    }
-
-    void logConfigurationInfo() {
-        def path = project.files(compileConfig()).getAsPath()
-        logger.info("Compile configuation as path: $path")
-    }
-
-    @TypeChecked(TypeCheckingMode.SKIP)
-    Configuration compileConfig() {
-        project.configurations.compile
     }
 
     protected List<String> assembleArguments() {
@@ -191,8 +160,6 @@ class FregeCompile extends AbstractCompile {
         } else {
             args = (args + extraArgs.split().toList()).toList()
         }
-
         args
     }
-
 }
