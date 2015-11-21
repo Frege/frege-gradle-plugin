@@ -1,5 +1,7 @@
 package frege.gradle
 
+import frege.gradle.plugins.FregeBasePlugin
+import frege.gradle.plugins.FregePlugin
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification

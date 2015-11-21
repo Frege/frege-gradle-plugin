@@ -1,15 +1,11 @@
-package frege.gradle
-
+package frege.gradle.tasks
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
-class QuickCheckTask extends DefaultTask {
+class FregeQuickCheck extends DefaultTask {
 
     // more options to consider:
 /*

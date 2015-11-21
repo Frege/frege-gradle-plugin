@@ -58,7 +58,7 @@ class FregePluginIntegTest extends Specification {
     }
 
     @Unroll
-    def "can compile and run frege code"() {
+    def "can compile and run frege code (gradle: #gradleVersion, frege: #fregeVersion)"() {
         given:
         buildFile << """
             dependencies {
@@ -66,6 +66,9 @@ class FregePluginIntegTest extends Specification {
             }
 
             task sayHello(type: JavaExec){
+                doFirst {
+                    println classpath.files
+                }
                 classpath = sourceSets.main.runtimeClasspath
                 main = 'HelloFrege'
             }
@@ -86,8 +89,8 @@ main _ = do
         when:
         def result = GradleRunner.create()
                 .withGradleVersion(gradleVersion)
-                .withProjectDir(testProjectDir.root)
-                .withArguments('sayHello')
+                .withDebug(true).withProjectDir(testProjectDir.root)
+                .withArguments('sayHello', '--stacktrace', '-i')
                 .withPluginClasspath(pluginClasspath)
                 .build()
 
@@ -98,8 +101,8 @@ main _ = do
         where:
         fregeVersion          | gradleVersion
         DEFAULT_FREGE_VERSION | "2.9"
-        DEFAULT_FREGE_VERSION | "2.8"
-        "3.22.367-g2737683"   | "2.9"
-        "3.22.367-g2737683"   | "2.8"
+//        DEFAULT_FREGE_VERSION | "2.8"
+//        "3.22.367-g2737683"   | "2.9"
+//        "3.22.367-g2737683"   | "2.8"
     }
 }

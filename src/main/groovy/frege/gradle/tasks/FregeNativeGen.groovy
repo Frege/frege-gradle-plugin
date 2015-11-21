@@ -1,4 +1,4 @@
-package frege.gradle
+package frege.gradle.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.file.FileResolver
@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
-class NativeGenTask extends DefaultTask {
+class FregeNativeGen extends DefaultTask {
 
     /*
      * Example from https://github.com/Frege/frege-native-gen:
