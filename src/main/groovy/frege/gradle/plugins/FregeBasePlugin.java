@@ -15,7 +15,6 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.SourceSet;
 
 import javax.inject.Inject;
-import java.util.concurrent.Callable;
 
 public class FregeBasePlugin implements Plugin<Project> {
     private FileResolver fileResolver;
@@ -30,15 +29,13 @@ public class FregeBasePlugin implements Plugin<Project> {
     }
 
     @Override
-    public void apply(Project project) {
+    public void apply(final Project project) {
         // Workaround to build proper jars on Windows, see https://github.com/Frege/frege-gradle-plugin/issues/9
         this.project = project;
         System.setProperty("file.encoding", "UTF-8");
         project.getPluginManager().apply(JavaBasePlugin.class);
         fregePluginExtension = project.getExtensions().create(EXTENSION_NAME, FregePluginExtension.class);
         JavaBasePlugin javaBasePlugin = project.getPlugins().getPlugin(JavaBasePlugin.class);
-
-        configureCompileDefaults(new FregeRuntime(project));
         configureSourceSetDefaults(javaBasePlugin);
     }
 
@@ -70,18 +67,4 @@ public class FregeBasePlugin implements Plugin<Project> {
             }
         });
     }
-
-    private void configureCompileDefaults(final FregeRuntime fregeRuntime) {
-        this.project.getTasks().withType(FregeCompile.class, new Action<FregeCompile>() {
-            public void execute(final FregeCompile compile) {
-                compile.getConventionMapping().map("fregeClasspath", new Callable() {
-                    public Object call() throws Exception {
-                        return fregeRuntime.inferFregeClasspath(compile.getClasspath());
-                    }
-
-                });
-            }
-        });
-    }
-
 }

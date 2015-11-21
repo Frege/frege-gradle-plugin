@@ -11,7 +11,6 @@ import org.gradle.process.JavaExecSpec
 @TypeChecked
 class FregeCompile extends AbstractCompile {
 
-    FileCollection fregeClasspath
     FileCollection classpath
 
     @Input
@@ -89,7 +88,7 @@ class FregeCompile extends AbstractCompile {
             @Override
             void execute(JavaExecSpec javaExecSpec) {
                 javaExecSpec.args = compilerArgs
-                javaExecSpec.classpath = FregeCompile.this.classpath + FregeCompile.this.fregeClasspath
+                javaExecSpec.classpath = FregeCompile.this.classpath
                 javaExecSpec.main = mainClass
             }
         });
