@@ -15,6 +15,7 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.SourceSet;
 
 import javax.inject.Inject;
+import java.util.concurrent.Callable;
 
 public class FregeBasePlugin implements Plugin<Project> {
     private FileResolver fileResolver;
@@ -42,7 +43,7 @@ public class FregeBasePlugin implements Plugin<Project> {
 
     private void configureSourceSetDefaults(final JavaBasePlugin javaBasePlugin) {
         project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all(new Action<SourceSet>() {
-            public void execute(SourceSet sourceSet) {
+            public void execute(final SourceSet sourceSet) {
                 final DefaultFregeSourceSet fregeSourceSet = new DefaultFregeSourceSet(((DefaultSourceSet) sourceSet).getDisplayName(), fileResolver);
                 new DslObject(sourceSet).getConvention().getPlugins().put("frege", fregeSourceSet);
 
@@ -60,6 +61,12 @@ public class FregeBasePlugin implements Plugin<Project> {
                 FregeCompile compile = project.getTasks().create(compileTaskName, FregeCompile.class);
                 compile.setModule(project.file(defaultSourcePath).getAbsolutePath());
                 javaBasePlugin.configureForSourceSet(sourceSet, compile);
+                compile.getConventionMapping().map("classpath", new Callable() {
+                    public Object call() throws Exception {
+                        return sourceSet.getCompileClasspath();
+                    }
+                });
+
                 compile.dependsOn(sourceSet.getCompileJavaTaskName());
                 compile.setDescription(String.format("Compiles the %s Frege source.", sourceSet.getName()));
                 compile.setSource(fregeSourceSet.getFrege());

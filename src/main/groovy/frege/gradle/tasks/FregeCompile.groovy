@@ -1,8 +1,10 @@
 package frege.gradle.tasks
+
 import groovy.transform.TypeChecked
 import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
@@ -54,8 +56,8 @@ class FregeCompile extends AbstractCompile {
     @Input
     String module = ""
 
-    @Input
-    List<File> fregePaths = []
+    @Optional @InputFiles
+    FileCollection fregePath
 
     @Input
     String mainClass = "frege.compiler.Main"
@@ -84,14 +86,20 @@ class FregeCompile extends AbstractCompile {
         logger.info("Calling Frege compiler with compilerArgs: '$compilerArgs'")
 
         //TODO integrate with gradle compiler daemon infrastructure and skip internal execution
+
+        def errOutputStream = new ByteArrayOutputStream();
+        def outOutputStream = new ByteArrayOutputStream();
         project.javaexec(new Action<JavaExecSpec>() {
             @Override
             void execute(JavaExecSpec javaExecSpec) {
                 javaExecSpec.args = compilerArgs
                 javaExecSpec.classpath = FregeCompile.this.classpath
                 javaExecSpec.main = mainClass
+                javaExecSpec.errorOutput = System.err;
+                javaExecSpec.standardOutput = System.out;
             }
         });
+
     }
 
     public FregeCompile source(Object... sources) {
@@ -129,10 +137,10 @@ class FregeCompile extends AbstractCompile {
         if (verbose)
             args << "-v"
 
-        def fp = fregePaths
-        if (!fp.isEmpty()) {
+
+        if (fregePath != null && !fregePath.isEmpty()) {
             args << "-fp"
-            args << fp.collect { f -> f.absolutePath }.join(File.pathSeparator)
+            args << fregePath.files.collect { f -> f.absolutePath }.join(File.pathSeparator)
         }
 
         if (sourcePaths != null && !sourcePaths.isEmpty()) {
@@ -151,7 +159,7 @@ class FregeCompile extends AbstractCompile {
         }
 
         args << "-d"
-        args << getDestinationDir()
+        args << getDestinationDir().absolutePath
 
         if (!module.isEmpty()) {
             logger.info "compiling module '$module'"
