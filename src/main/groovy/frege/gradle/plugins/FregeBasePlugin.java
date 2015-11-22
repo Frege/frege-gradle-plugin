@@ -61,7 +61,7 @@ public class FregeBasePlugin implements Plugin<Project> {
                 FregeCompile compile = project.getTasks().create(compileTaskName, FregeCompile.class);
                 compile.setModule(project.file(defaultSourcePath).getAbsolutePath());
                 javaBasePlugin.configureForSourceSet(sourceSet, compile);
-                compile.getConventionMapping().map("classpath", new Callable() {
+                compile.getConventionMapping().map("fregepath", new Callable() {
                     public Object call() throws Exception {
                         return sourceSet.getCompileClasspath();
                     }

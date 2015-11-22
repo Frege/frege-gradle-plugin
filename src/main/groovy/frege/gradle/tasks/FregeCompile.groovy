@@ -57,7 +57,7 @@ class FregeCompile extends AbstractCompile {
     String module = ""
 
     @Optional @InputFiles
-    FileCollection fregePath
+    FileCollection fregepath
 
     @Input
     String mainClass = "frege.compiler.Main"
@@ -138,9 +138,9 @@ class FregeCompile extends AbstractCompile {
             args << "-v"
 
 
-        if (fregePath != null && !fregePath.isEmpty()) {
+        if (fregepath != null && !fregepath.isEmpty()) {
             args << "-fp"
-            args << fregePath.files.collect { f -> f.absolutePath }.join(File.pathSeparator)
+            args << fregepath.files.collect { f -> f.absolutePath }.join(File.pathSeparator)
         }
 
         if (sourcePaths != null && !sourcePaths.isEmpty()) {

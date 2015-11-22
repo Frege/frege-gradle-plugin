@@ -28,7 +28,7 @@ class FregeCompileIntegTest extends AbstractFregeIntegrationSpec {
                 source("frege-src")
                 module = "frege-src"
                 classpath = configurations.frege
-                fregePath = configurations.frege
+                fregepath = configurations.frege
             }
         """
 
