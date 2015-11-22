@@ -30,22 +30,20 @@ public class FregeBasePlugin implements Plugin<Project> {
     }
 
     @Override
-    public void apply(Project project) {
+    public void apply(final Project project) {
         // Workaround to build proper jars on Windows, see https://github.com/Frege/frege-gradle-plugin/issues/9
         this.project = project;
         System.setProperty("file.encoding", "UTF-8");
         project.getPluginManager().apply(JavaBasePlugin.class);
         fregePluginExtension = project.getExtensions().create(EXTENSION_NAME, FregePluginExtension.class);
         JavaBasePlugin javaBasePlugin = project.getPlugins().getPlugin(JavaBasePlugin.class);
-
-        configureCompileDefaults(new FregeRuntime(project));
         configureSourceSetDefaults(javaBasePlugin);
     }
 
 
     private void configureSourceSetDefaults(final JavaBasePlugin javaBasePlugin) {
         project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all(new Action<SourceSet>() {
-            public void execute(SourceSet sourceSet) {
+            public void execute(final SourceSet sourceSet) {
                 final DefaultFregeSourceSet fregeSourceSet = new DefaultFregeSourceSet(((DefaultSourceSet) sourceSet).getDisplayName(), fileResolver);
                 new DslObject(sourceSet).getConvention().getPlugins().put("frege", fregeSourceSet);
 
@@ -63,6 +61,12 @@ public class FregeBasePlugin implements Plugin<Project> {
                 FregeCompile compile = project.getTasks().create(compileTaskName, FregeCompile.class);
                 compile.setModule(project.file(defaultSourcePath).getAbsolutePath());
                 javaBasePlugin.configureForSourceSet(sourceSet, compile);
+                compile.getConventionMapping().map("fregepath", new Callable() {
+                    public Object call() throws Exception {
+                        return sourceSet.getCompileClasspath();
+                    }
+                });
+
                 compile.dependsOn(sourceSet.getCompileJavaTaskName());
                 compile.setDescription(String.format("Compiles the %s Frege source.", sourceSet.getName()));
                 compile.setSource(fregeSourceSet.getFrege());
@@ -70,18 +74,4 @@ public class FregeBasePlugin implements Plugin<Project> {
             }
         });
     }
-
-    private void configureCompileDefaults(final FregeRuntime fregeRuntime) {
-        this.project.getTasks().withType(FregeCompile.class, new Action<FregeCompile>() {
-            public void execute(final FregeCompile compile) {
-                compile.getConventionMapping().map("fregeClasspath", new Callable() {
-                    public Object call() throws Exception {
-                        return fregeRuntime.inferFregeClasspath(compile.getClasspath());
-                    }
-
-                });
-            }
-        });
-    }
-
 }
