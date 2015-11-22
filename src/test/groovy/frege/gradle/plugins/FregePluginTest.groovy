@@ -13,11 +13,6 @@ class FregePluginTest extends Specification {
         project.plugins.apply(FregePlugin)
     }
 
-    def "adds frege extension"(){
-        expect:
-        project.getExtensions().getByName(FregeBasePlugin.EXTENSION_NAME) != null
-    }
-
     def "applies frege base plugin"() {
         expect:
         project.pluginManager.findPlugin("org.frege-lang.base") != null
