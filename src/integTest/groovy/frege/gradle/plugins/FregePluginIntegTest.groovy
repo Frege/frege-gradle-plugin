@@ -43,16 +43,7 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         ${sayHelloTask()}
         """
 
-        def fregeSourceFile = testProjectDir.newFile("src/main/frege/org/frege/HelloFrege.fr")
-
-        fregeSourceFile << """
-        module org.frege.HelloFrege where
-
-        greeting = "Hello Frege!"
-
-        main _ = do
-            println greeting
-        """
+        fregeModule()
 
         when:
         def result = run(gradleVersion, "sayHello")
@@ -67,6 +58,20 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         DEFAULT_FREGE_VERSION | "2.8"
         "3.22.367-g2737683"   | "2.9"
         "3.22.367-g2737683"   | "2.8"
+    }
+
+    private void fregeModule(String modulePath = "src/main/frege/org/frege/HelloFrege.fr") {
+        def moduleFolder = new File(testProjectDir.root, modulePath).parentFile
+        moduleFolder.mkdirs()
+        def moduleSource = testProjectDir.newFile(modulePath)
+        moduleSource << """
+        module org.frege.HelloFrege where
+
+        greeting = "Hello Frege!"
+
+        main _ = do
+            println greeting
+        """
     }
 
     def "can reference java from frege"() {
@@ -87,6 +92,37 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         result.task(":compileJava").outcome == SUCCESS
         result.task(":compileFrege").outcome == SUCCESS
         result.output.contains("hello from java")
+    }
+
+
+    def "supports additional source sets"() {
+        given:
+        buildFile << """
+
+        sourceSets {
+            api
+        }
+
+        dependencies {
+            apiCompile "org.frege-lang:frege:$DEFAULT_FREGE_VERSION"
+        }
+
+
+        """
+        and:
+        javaCode()
+        fregeModule("src/api/frege/org/frege/HelloFrege.fr")
+        when:
+        BuildResult result = run("apiClasses")
+        then:
+        result.task(":compileApiJava").outcome == UP_TO_DATE
+        result.task(":compileApiFrege").outcome == SUCCESS
+        classFileExists("api/org/frege/HelloFrege.class")
+    }
+
+    def classFileExists(String relativeClasspath) {
+        assert new File(testProjectDir.root, "build/classes/$relativeClasspath/").exists()
+        true
     }
 
     def fregeCallingJava() {
