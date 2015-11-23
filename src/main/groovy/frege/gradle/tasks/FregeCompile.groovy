@@ -62,7 +62,6 @@ class FregeCompile extends AbstractCompile {
     @Input
     String mainClass = "frege.compiler.Main"
 
-    @Optional
     @Input
     List<String> allJvmArgs = []
 
@@ -77,24 +76,18 @@ class FregeCompile extends AbstractCompile {
     @Override
     @TaskAction
     protected void compile() {
-        def jvmArgs = allJvmArgs
-        if (jvmArgs.isEmpty()) {
-            jvmArgs << "-Xss$stackSize".toString()
-        }
+        def jvmArgumentsToUse = allJvmArgs.empty ? ["-Xss$stackSize"] : new ArrayList<String>(allJvmArgs)
         def compilerArgs = allArgs ? allArgs.split().toList() : assembleArguments()
 
         logger.info("Calling Frege compiler with compilerArgs: '$compilerArgs'")
-
         //TODO integrate with gradle compiler daemon infrastructure and skip internal execution
-
-        def errOutputStream = new ByteArrayOutputStream();
-        def outOutputStream = new ByteArrayOutputStream();
         project.javaexec(new Action<JavaExecSpec>() {
             @Override
             void execute(JavaExecSpec javaExecSpec) {
                 javaExecSpec.args = compilerArgs
                 javaExecSpec.classpath = FregeCompile.this.classpath
                 javaExecSpec.main = mainClass
+                javaExecSpec.jvmArgs = jvmArgumentsToUse
                 javaExecSpec.errorOutput = System.err;
                 javaExecSpec.standardOutput = System.out;
             }

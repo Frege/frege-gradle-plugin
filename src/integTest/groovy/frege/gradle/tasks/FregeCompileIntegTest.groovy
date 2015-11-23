@@ -2,6 +2,8 @@ package frege.gradle.tasks
 import frege.gradle.integtest.fixtures.AbstractFregeIntegrationSpec
 
 import static org.gradle.testkit.runner.TaskOutcome.FAILED
+import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 
 class FregeCompileIntegTest extends AbstractFregeIntegrationSpec {
 
@@ -46,6 +48,31 @@ class FregeCompileIntegTest extends AbstractFregeIntegrationSpec {
         result.task(":compile").outcome == FAILED
         result.output.contains("Failing.fr:6: can't resolve `Hello`")
     }
+
+    def "is incremental"() {
+        given:
+        simpleFrege()
+
+        buildFile << """
+        compile.doLast {
+            println System.identityHashCode(compile.allJvmArgs)
+            println compile.allJvmArgs
+            println compile.allJvmArgs.getClass()
+        }
+"""
+        when:
+        def result = run("compile")
+
+        then:
+        result.task(":compile").outcome == SUCCESS
+
+        when:
+        result = run("compile")
+
+        then:
+        result.task(":compile").outcome == UP_TO_DATE
+    }
+
 
     def failingFrege() {
         def failingFrege = testProjectDir.newFile("frege-src/Failing.fr")
