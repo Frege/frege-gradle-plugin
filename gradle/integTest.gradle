@@ -14,8 +14,8 @@ task integTest(type: Test) {
     shouldRunAfter 'test'
     testClassesDir = sourceSets.integTest.output.classesDir
     classpath = sourceSets.integTest.runtimeClasspath
-
 }
+
 check.dependsOn(integTest)
 
 plugins.withType(org.gradle.plugins.ide.idea.IdeaPlugin) {
@@ -30,8 +30,6 @@ plugins.withType(org.gradle.plugins.ide.idea.IdeaPlugin) {
 }
 
 
-// START SNIPPET test-logic-classpath
-// Write the plugin's classpath to a file to share with the tests
 task createClasspathManifest {
     def outputDir = file("$buildDir/$name")
 
@@ -44,7 +42,6 @@ task createClasspathManifest {
     }
 }
 
-// Add the classpath file to the test runtime classpath
 dependencies {
     integTestRuntime files(createClasspathManifest)
 }
