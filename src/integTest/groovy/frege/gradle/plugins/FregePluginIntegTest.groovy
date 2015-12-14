@@ -2,6 +2,7 @@ package frege.gradle.plugins
 
 import frege.gradle.integtest.fixtures.AbstractFregeIntegrationSpec
 import org.gradle.testkit.runner.BuildResult
+import spock.lang.Ignore
 import spock.lang.Unroll
 import static org.gradle.testkit.runner.TaskOutcome.*
 
@@ -94,6 +95,41 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         result.output.contains("hello from java")
     }
 
+    def "can run frege doc on frege module"() {
+        given:
+        buildFile << """
+        dependencies {
+            compile "org.frege-lang:frege:$DEFAULT_FREGE_VERSION"
+        }
+        """
+
+        and:
+        fregeModule()
+        when:
+        BuildResult result = run("fregeDoc")
+        then:
+        result.task(":fregeDoc").outcome == SUCCESS
+    }
+
+
+    @Ignore
+    def "frege doc works with mixed sources"() {
+        given:
+        buildFile << """
+        dependencies {
+            compile "org.frege-lang:frege:$DEFAULT_FREGE_VERSION"
+        }
+        """
+
+        and:
+        javaCode()
+        fregeCallingJava()
+        when:
+        BuildResult result = run("fregeDoc")
+        then:
+        result.task(":fregeDoc").outcome == SUCCESS
+    }
+
 
     def "supports additional source sets"() {
         given:
@@ -131,8 +167,8 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         fregeSourceFile << """
         module org.frege.HelloFrege where
 
-        data StaticHello = pure native org.frege.StaticHello where
-            pure native helloJava org.frege.StaticHello.helloJava:: () -> String
+        data StaticHello = pure native org.frege.java.StaticHello where
+            pure native helloJava org.frege.java.StaticHello.helloJava:: () -> String
 
 
         main _ = do
@@ -142,10 +178,10 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
     }
 
     def javaCode(String sourceRoot = "java") {
-        def javaSourceFile = testProjectDir.newFile("src/main/$sourceRoot/org/frege/StaticHello.java")
+        def javaSourceFile = testProjectDir.newFile("src/main/$sourceRoot/org/frege/java/StaticHello.java")
 
         javaSourceFile << """
-        package org.frege;
+        package org.frege.java;
 
         public class StaticHello {
             public static String helloJava() {

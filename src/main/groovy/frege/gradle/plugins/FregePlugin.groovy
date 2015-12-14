@@ -1,11 +1,13 @@
 package frege.gradle.plugins
-
 import frege.gradle.tasks.FregeDoc
 import frege.gradle.tasks.FregeNativeGen
 import frege.gradle.tasks.FregeQuickCheck
 import frege.gradle.tasks.FregeRepl
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.util.PatternSet
 
 class FregePlugin implements Plugin<Project> {
 
@@ -25,10 +27,24 @@ class FregePlugin implements Plugin<Project> {
 
         project.tasks.test.dependsOn("fregeQuickCheck")
 
-        project.task('fregeDoc', type: FregeDoc, group: 'frege', dependsOn: 'compileFrege')
+
+        configureFregeDoc()
 
         project.task('fregeNativeGen', type: FregeNativeGen, group: 'frege')
 
     }
 
+    def configureFregeDoc() {
+        FregeDoc fregeDoc = project.tasks.create('fregeDoc', FregeDoc)
+        fregeDoc.group = 'frege'
+        fregeDoc.dependsOn "compileFrege" // TODO remove
+        SourceSet mainSourceSet = project.sourceSets.main
+        fregeDoc.module = mainSourceSet.output.classesDir.absolutePath
+        fregeDoc.classpath = mainSourceSet.runtimeClasspath
+    }
+
+
+    FileCollection findJavaModulesToExclude(SourceSet sourceSet) {
+        return sourceSet.allJava.asFileTree.matching { PatternSet pattern -> pattern.include("**/*.java")}
+    }
 }

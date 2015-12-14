@@ -71,6 +71,7 @@ public class FregeBasePlugin implements Plugin<Project> {
                 compile.setDescription(String.format("Compiles the %s Frege source.", sourceSet.getName()));
                 compile.setSource(fregeSourceSet.getFrege());
                 project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compileTaskName);
+                sourceSet.compiledBy(compile);
             }
         });
     }

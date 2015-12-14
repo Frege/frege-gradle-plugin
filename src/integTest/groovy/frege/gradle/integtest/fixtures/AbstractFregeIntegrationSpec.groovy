@@ -17,8 +17,7 @@ class AbstractFregeIntegrationSpec extends Specification {
     def setup() {
         buildFile = testProjectDir.newFile('build.gradle')
 
-
-        testProjectDir.newFolder("src", "main", "java", "org", "frege")
+        testProjectDir.newFolder("src", "main", "java", "org", "frege", "java")
         testProjectDir.newFolder("src", "main", "frege", "org", "frege")
 
         def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.txt")

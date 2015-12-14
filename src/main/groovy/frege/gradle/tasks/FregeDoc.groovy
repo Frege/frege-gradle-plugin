@@ -1,14 +1,13 @@
 package frege.gradle.tasks
 
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
-import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.process.internal.DefaultJavaExecAction
-import org.gradle.process.internal.JavaExecAction
+import org.gradle.process.JavaExecSpec
 
 class FregeDoc extends DefaultTask {
 
@@ -30,53 +29,46 @@ class FregeDoc extends DefaultTask {
      *
      */
 
-    static String DEFAULT_SRC_DIR     = "src/main/frege"     // TODO: should this come from a source set?
     static String DEFAULT_DOCS_SUBDIR = "docs/frege"       // TODO: should this come from a convention?
-
-    Boolean help = false
-
-    @Optional
-    @InputDirectory
-    File sourceDir = new File(project.projectDir, DEFAULT_SRC_DIR).exists() ? new File(project.projectDir, DEFAULT_SRC_DIR) : null
 
     @Optional
     @OutputDirectory
     File targetDir = new File(project.buildDir, DEFAULT_DOCS_SUBDIR)
 
     @Input
-    String module = "$project.buildDir/classes/main" // module name or directory or class path. Default is all production modules
+    String module // module name or directory or class path. Default is all production modules
 
-    @Input @Optional
+    @Input
+    @Optional
     String exclude = null
 
-    @Input @Optional
+    @Input
+    @Optional
     Boolean verbose = null
+
+    FileCollection classpath
 
     @TaskAction
     void fregedoc() {
-
-        FileResolver fileResolver = getServices().get(FileResolver.class)
-        JavaExecAction action = new DefaultJavaExecAction(fileResolver)
-        action.setMain("frege.tools.Doc")
-        action.workingDir = sourceDir ?: project.projectDir
-        action.standardInput = System.in
-        action.standardOutput = System.out
-        action.errorOutput = System.err
-        action.setClasspath(project.files(project.configurations.compile) + project.files("$project.buildDir/classes/main"))
-
-        def args = []
-        if (help) {
-            args << "-h"
-        } else {
-            if (verbose) args << '-v'
-            args << '-d' << targetDir.absolutePath
-            if (exclude) args << '-x' << exclude
-            args << module
-        }
-
-        logger.info("Calling Frege Doc with args: '$args'")
-        action.args args
-        action.execute()
+        def result = project.javaexec(new Action<JavaExecSpec>() {
+            @Override
+            void execute(JavaExecSpec javaExecSpec) {
+                if (verbose) {
+                    javaExecSpec.args '-v'
+                }
+                javaExecSpec.args '-d', targetDir.absolutePath
+                if (exclude) {
+                    javaExecSpec.args '-x', exclude
+                }
+                javaExecSpec.args(module)
+                javaExecSpec.main = "frege.tools.Doc"
+                javaExecSpec.workingDir = project.projectDir
+                javaExecSpec.standardInput = System.in
+                javaExecSpec.standardOutput = System.out
+                javaExecSpec.errorOutput = System.err
+                javaExecSpec.classpath = this.classpath
+            }
+        })
     }
 
 }

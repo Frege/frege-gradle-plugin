@@ -1,7 +1,7 @@
 package frege.gradle;
 
-/**
- * Created by Rene on 20/11/15.
- */
+import org.gradle.api.file.SourceDirectorySet;
+
 public interface FregeSourceSet {
+    SourceDirectorySet getFrege();
 }
