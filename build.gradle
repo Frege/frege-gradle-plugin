@@ -12,13 +12,13 @@ targetCompatibility = 1.7
 
 ext {
     baseVersion = "0.6"
-    isSnapshot = true
+    isSnapshot = false
     snapshotAppendix = "-SNAPSHOT"
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
     projectGroup = "org.frege-lang"
 
-    fregeBaseVersion = "3.23.288"
-    fregeClassifier = "-gaa3af0c"
+    fregeBaseVersion = "3.23.401"
+    fregeClassifier = "-g7c45277"
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
 
     // work around https://issues.gradle.org/browse/GRADLE-3281
@@ -58,7 +58,7 @@ repositories {
 
 dependencies {
     compile "$projectGroup:frege:$fregeVersion"
-    compile "$projectGroup:frege-repl-core:1.2"
+    compile "$projectGroup:frege-repl-core:1.3"
     compile "$projectGroup:frege-native-gen:1.3"
     compile "org.functionaljava:functionaljava:4.4"
 
