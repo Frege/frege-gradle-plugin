@@ -5,9 +5,7 @@ import frege.gradle.tasks.FregeQuickCheck
 import frege.gradle.tasks.FregeRepl
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.util.PatternSet
 
 class FregePlugin implements Plugin<Project> {
 
@@ -43,8 +41,4 @@ class FregePlugin implements Plugin<Project> {
         fregeDoc.classpath = mainSourceSet.runtimeClasspath
     }
 
-
-    FileCollection findJavaModulesToExclude(SourceSet sourceSet) {
-        return sourceSet.allJava.asFileTree.matching { PatternSet pattern -> pattern.include("**/*.java")}
-    }
 }

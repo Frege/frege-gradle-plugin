@@ -1,10 +1,10 @@
 package frege.gradle.plugins
-
 import frege.gradle.integtest.fixtures.AbstractFregeIntegrationSpec
 import org.gradle.testkit.runner.BuildResult
-import spock.lang.Ignore
 import spock.lang.Unroll
-import static org.gradle.testkit.runner.TaskOutcome.*
+
+import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 
 class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
 
@@ -112,7 +112,6 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
     }
 
 
-    @Ignore
     def "frege doc works with mixed sources"() {
         given:
         buildFile << """
@@ -129,7 +128,6 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         then:
         result.task(":fregeDoc").outcome == SUCCESS
     }
-
 
     def "supports additional source sets"() {
         given:

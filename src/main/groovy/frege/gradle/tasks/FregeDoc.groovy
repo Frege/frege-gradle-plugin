@@ -1,7 +1,9 @@
 package frege.gradle.tasks
 
+import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -50,6 +52,8 @@ class FregeDoc extends DefaultTask {
 
     @TaskAction
     void fregedoc() {
+        ByteArrayOutputStream berr = new ByteArrayOutputStream()
+        def teeOutputStream = new TeeOutputStream(System.err, berr)
         def result = project.javaexec(new Action<JavaExecSpec>() {
             @Override
             void execute(JavaExecSpec javaExecSpec) {
@@ -65,11 +69,18 @@ class FregeDoc extends DefaultTask {
                 javaExecSpec.workingDir = project.projectDir
                 javaExecSpec.standardInput = System.in
                 javaExecSpec.standardOutput = System.out
-                javaExecSpec.errorOutput = System.err
+                javaExecSpec.errorOutput = teeOutputStream
                 javaExecSpec.classpath = this.classpath
+
+                javaExecSpec.ignoreExitValue = true
             }
         })
-    }
 
+        //Workaround for failing with java sources. should result in exit value 0 anyway.
+        def berrString = berr.toString()
+        if (result.exitValue !=0 && !berrString.contains("there were errors for")) {
+            throw new GradleException("Non zero exit value running FregeDoc.");
+        }
+    }
 }
 
