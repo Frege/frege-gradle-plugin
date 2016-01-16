@@ -11,8 +11,8 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 ext {
-    baseVersion = "0.7"
-    isSnapshot = false
+    baseVersion = "0.8"
+    isSnapshot = true
     snapshotAppendix = "-SNAPSHOT"
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
     projectGroup = "org.frege-lang"
