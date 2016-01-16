@@ -7,42 +7,6 @@ import org.gradle.process.internal.JavaExecAction
 
 class FregeQuickCheck extends DefaultTask {
 
-    // more options to consider:
-/*
-     Looks up quick check predicates in the given modules and tests them.
-
-    [Usage:] java -cp fregec.jar frege.tools.Quick [ option ... ] modulespec ...
-
-    Options:
-
-    -    -v      print a line for each pedicate that passed
-    -    -n num  run _num_ tests per predicate, default is 100
-    -    -p pred1,pred2,... only test the given predicates
-    -    -x pred1,pred2,... do not test the given predicates
-    -    -l  just print the names of the predicates available.
-
-    Ways to specify modules:
-
-    - module  the module name (e.g. my.great.Module), will be lookup up in
-              the current class path.
-    - dir/    A directory path. The directory is searched for class files,
-              and for each class files an attempt is made to load it as if
-              the given directory was in the class path. The directory must
-              be the root of the classes contained therein, otherwise the
-              classes won't get loaded.
-    - path-to.jar A jar or zip file is searched for class files, and for each
-              class file found an attempt is made to load it as if the
-              jar was in the class path.
-
-     The number of passed/failed tests is reported. If any test failed or other
-     errors occured, the exit code will be non zero.
-
-     The code will try to heat up your CPU by running tests on all available cores.
-     This should be faster on multi-core computers than running the tests
-     sequentially. It makes it feasable to run more tests per predicate.
-
-     */
-
     Boolean verbose = true
     Boolean listAvailable = false
     Boolean help = false
@@ -50,10 +14,9 @@ class FregeQuickCheck extends DefaultTask {
     List<String> includePredicates
     List<String> excludePredicates
     String moduleName
-    String moduleDirectory
     String moduleJar
-    List<String> classpathDirectories = ["$project.buildDir/classes/main", "$project.buildDir/classes/test"]
     String moduleDir = "$project.buildDir/classes/test"
+    List<String> classpathDirectories = ["$project.buildDir/classes/main", "$project.buildDir/classes/test"]
     List<String> allJvmArgs = []
 
     @TaskAction
@@ -70,21 +33,50 @@ class FregeQuickCheck extends DefaultTask {
         def f = project.files(classpathDirectories.collect { s -> new File(s) })
         action.setClasspath(project.files(project.configurations.compile).plus(project.files(project.configurations.testRuntime)).plus(f))
 
-
-        project.configurations.testRuntime.each { println it }
+        def moduleSpec = moduleName ?: moduleJar ?: moduleDir
 
         def args = []
         if (help) {
+            println """
+FregeQuickCheck Help
+--------------------
+All attributes are optional,
+currently used moduleDir  is '$moduleDir',
+currently used moduleSpec is '$moduleSpec'.
 
-        } else {
-            if (verbose) args << "-v"
-            if (listAvailable) args << "-l"
-            if (!allJvmArgs.isEmpty()) {
-                action.setJvmArgs(allJvmArgs)
-            }
-            args = args + [moduleDir]
+Example attribute values:
+fregeQuickCheck {
+    help = true          // default: false
+    listAvailable = true // default: false, will only list and not execute
+    verbose = false      // default: true, needed to see the results
+    num = 500            // default: 100
+    includePredicates = ['myFirstPred', 'mySecondPred']
+    excludePredicates = ['myFirstPred', 'mySecondPred']
+    moduleName = 'my.cool.Module'                  // prio 1
+    moduleJar  = 'path/to/my/module.jar'           // prio 2
+    moduleDir  = "\$project.buildDir/classes/test" // prio 3, default
+    classpathDirectories = ["\$project.buildDir/classes/main", "\$project.buildDir/classes/test"]
+    allJvmArgs = ['-Xss4M']
+}
+"""
+            println "Current Test Runtime is: "
+            project.configurations.testRuntime.each { println it }
         }
-        logger.info("Calling Frege QuickCheck with args: '$args'")
+
+        if (verbose) args << "-v"
+        if (listAvailable) args << "-l"
+        if (num) args << "-n" << num
+        if (includePredicates) args << "-p" << includePredicates.join(',')
+        if (excludePredicates) args << "-x" << excludePredicates.join(',')
+        if (!allJvmArgs.isEmpty()) {
+            action.setJvmArgs(allJvmArgs)
+        }
+        args << moduleSpec
+
+        if (help) {
+            println "Calling Frege QuickCheck with args: '${args.join(' ')}'"
+            println "and JVM args: '${allJvmArgs.join(' ')}'"
+        }
         action.args args
         action.execute()
     }

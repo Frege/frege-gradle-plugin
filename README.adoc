@@ -26,8 +26,10 @@ apply plugin: "org.frege-lang"
 To apply the plugin using the new incubating, plugin mechanism (since Gradle 2.1), add:
 ```
 plugins {
-  id "org.frege-lang" version "0.5"
+  id "org.frege-lang" version "0.7"
 }
+
+apply plugin: "org.frege-lang"
 ```
 
 == Tasks
@@ -49,7 +51,25 @@ The plugin adds dependencies so that using the `build` task is typically all tha
 
 == Task Help
 
-TODO: Add options and descriptions for each task above.
+=== Configuring QuickCheck
+
+Without any configuration, the `fregeQuickCheck` task (which is triggered as part of the `test` task)
+automatically executes all tests from the Frege test source set (default: `src/test/frege`).
+It will pick up all functions as tests that return a value of type `Property`. This is usually achieved by
+using the factory methods `property` or `once`.
+Please see more details under http://www.frege-lang.org/doc/frege/test/QuickCheck.html[QuickCheck API doc].
+
+NOTE: Testing fails if no test is found. If your project does not contain any tests, you have to skip testing via `-x test`.
+
+You can configure the task in many ways. To see all options, you best ask the help:
+```
+fregeQuickCheck {
+    help = true
+}
+```
+
+
+TODO: Add options and descriptions for more tasks from above.
 
 == Example
 
