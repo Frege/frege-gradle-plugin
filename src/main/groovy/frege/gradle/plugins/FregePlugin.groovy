@@ -17,7 +17,7 @@ class FregePlugin implements Plugin<Project> {
         project.plugins.apply(FregeBasePlugin)
         project.plugins.apply("java")
 
-        def replTask = project.task('fregeRepl', type: FregeRepl, group: 'frege', dependsOn: 'compileFrege')
+        def replTask = project.task('fregeRepl', type: FregeRepl, group: 'frege', dependsOn: ['compileFrege', 'processResources'])
         replTask.outputs.upToDateWhen { false } // always run, regardless of up to date checks
 
         def checkTask = project.task('fregeQuickCheck', type: FregeQuickCheck, group: 'frege', dependsOn: 'testClasses')
