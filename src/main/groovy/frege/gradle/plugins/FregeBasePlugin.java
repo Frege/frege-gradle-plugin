@@ -1,6 +1,7 @@
 package frege.gradle.plugins;
 
 import frege.gradle.DefaultFregeSourceSet;
+import frege.gradle.FregeSourceSetDirectoryFactory;
 import frege.gradle.tasks.FregeCompile;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -8,6 +9,7 @@ import org.gradle.api.Project;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.internal.tasks.DefaultSourceSet;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -44,7 +46,8 @@ public class FregeBasePlugin implements Plugin<Project> {
     private void configureSourceSetDefaults(final JavaBasePlugin javaBasePlugin) {
         project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().all(new Action<SourceSet>() {
             public void execute(final SourceSet sourceSet) {
-                final DefaultFregeSourceSet fregeSourceSet = new DefaultFregeSourceSet(((DefaultSourceSet) sourceSet).getDisplayName(), fileResolver);
+                FregeSourceSetDirectoryFactory factory = new FregeSourceSetDirectoryFactory((ProjectInternal) project, fileResolver);
+                final DefaultFregeSourceSet fregeSourceSet = new DefaultFregeSourceSet(((DefaultSourceSet) sourceSet).getDisplayName(), factory);
                 new DslObject(sourceSet).getConvention().getPlugins().put("frege", fregeSourceSet);
 
                 final String defaultSourcePath = String.format("src/%s/frege", sourceSet.getName());

@@ -29,9 +29,11 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         """
 
         when:
-        def result = run("classes")
+        def result = run(gradleVersion, "classes")
         then:
         result.task(":compileFrege").outcome == UP_TO_DATE
+        where:
+        gradleVersion << ["2.8", "2.11", "2.12"]
     }
 
     @Unroll
@@ -55,6 +57,8 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
 
         where:
         fregeVersion          | gradleVersion
+        DEFAULT_FREGE_VERSION | "2.12"
+        "3.22.367-g2737683"   | "2.12"
         DEFAULT_FREGE_VERSION | "2.9"
         DEFAULT_FREGE_VERSION | "2.8"
         "3.22.367-g2737683"   | "2.9"
