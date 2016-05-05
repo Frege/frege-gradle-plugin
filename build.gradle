@@ -11,7 +11,7 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 ext {
-    baseVersion = "0.6"
+    baseVersion = "0.9"
     isSnapshot = true
     snapshotAppendix = "-SNAPSHOT"
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
@@ -22,6 +22,7 @@ ext {
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
 
     // work around https://issues.gradle.org/browse/GRADLE-3281
+    // fixed in 0.9.3 https://plugins.gradle.org/plugin/com.gradle.plugin-publish
     def home = new File(System.getProperty("user.home"))
     def propfile = new File(home, ".gradle/gradle.properties")
     if (propfile.exists()) {
