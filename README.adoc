@@ -16,7 +16,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.org.frege-lang:frege-gradle-plugin:0.5"
+    classpath "gradle.plugin.org.frege-lang:frege-gradle-plugin:0.8"
   }
 }
 
@@ -26,7 +26,7 @@ apply plugin: "org.frege-lang"
 To apply the plugin using the new incubating, plugin mechanism (since Gradle 2.1), add:
 ```
 plugins {
-  id "org.frege-lang" version "0.5"
+  id "org.frege-lang" version "0.8"
 }
 ```
 
