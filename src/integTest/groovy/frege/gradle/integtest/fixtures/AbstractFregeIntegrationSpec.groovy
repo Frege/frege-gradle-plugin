@@ -7,7 +7,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class AbstractFregeIntegrationSpec extends Specification {
-    public static final String DEFAULT_FREGE_VERSION = "3.23.370-g898bc8c"
+    public static final String DEFAULT_FREGE_VERSION = "3.24.405"
     List<File> pluginClasspath
 
     @Rule

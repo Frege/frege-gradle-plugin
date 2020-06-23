@@ -3,6 +3,7 @@ import frege.gradle.integtest.fixtures.AbstractFregeIntegrationSpec
 import org.gradle.testkit.runner.BuildResult
 import spock.lang.Unroll
 
+import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE
 
@@ -16,6 +17,12 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
 
             repositories {
                 jcenter()
+                flatDir {
+                    dirs '${new File(".").absolutePath}/lib'
+                } 
+            }
+            compileFrege {
+                classpath = files()
             }
         """
     }
@@ -31,9 +38,9 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         when:
         def result = run(gradleVersion, "classes")
         then:
-        result.task(":compileFrege").outcome == UP_TO_DATE
+        result.task(":compileFrege").outcome == NO_SOURCE
         where:
-        gradleVersion << ["2.8", "2.11", "2.12"]
+        gradleVersion << ["4.0", "5.0", "5.3.1"]
     }
 
     @Unroll
@@ -57,12 +64,10 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
 
         where:
         fregeVersion          | gradleVersion
-        DEFAULT_FREGE_VERSION | "2.12"
+        DEFAULT_FREGE_VERSION | "5.3.1"
+        DEFAULT_FREGE_VERSION | "5.0"
+        DEFAULT_FREGE_VERSION | "4.0"
         "3.22.367-g2737683"   | "2.12"
-        DEFAULT_FREGE_VERSION | "2.9"
-        DEFAULT_FREGE_VERSION | "2.8"
-        "3.22.367-g2737683"   | "2.9"
-        "3.22.367-g2737683"   | "2.8"
     }
 
     private void fregeModule(String modulePath = "src/main/frege/org/frege/HelloFrege.fr") {
@@ -105,6 +110,7 @@ class FregePluginIntegTest extends AbstractFregeIntegrationSpec {
         dependencies {
             compile "org.frege-lang:frege:$DEFAULT_FREGE_VERSION"
         }
+        ext.destinationDir = "docs" 
         """
 
         and:

@@ -1,6 +1,5 @@
 package frege.gradle.tasks
 
-import org.apache.commons.io.output.TeeOutputStream
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -9,6 +8,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.impldep.org.apache.commons.io.output.TeeOutputStream
 import org.gradle.process.JavaExecSpec
 
 class FregeDoc extends DefaultTask {

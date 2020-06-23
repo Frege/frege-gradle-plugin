@@ -17,7 +17,12 @@ class FregeCompileIntegTest extends AbstractFregeIntegrationSpec {
 
             import frege.gradle.tasks.FregeCompile
 
-            repositories { jcenter() }
+            repositories { 
+                jcenter()
+                flatDir {
+                    dirs '${new File(".").absolutePath}/lib'
+                } 
+            }
 
             configurations { frege {} }
 

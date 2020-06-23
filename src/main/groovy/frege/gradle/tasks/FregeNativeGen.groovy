@@ -7,7 +7,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-
+import org.gradle.process.internal.DefaultExecActionFactory
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
@@ -37,7 +37,7 @@ class FregeNativeGen extends DefaultTask {
     void gen() {
 
         FileResolver fileResolver = getServices().get(FileResolver.class)
-        JavaExecAction action = new DefaultJavaExecAction(fileResolver)
+        JavaExecAction action = new DefaultExecActionFactory(fileResolver).newJavaExecAction()
         action.setMain("frege.nativegen.Main")
         action.workingDir = project.projectDir
         action.standardInput = System.in

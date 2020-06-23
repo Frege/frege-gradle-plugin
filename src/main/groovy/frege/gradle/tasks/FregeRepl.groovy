@@ -3,6 +3,7 @@ package frege.gradle.tasks
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.*
+import org.gradle.process.internal.DefaultExecActionFactory
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
@@ -27,7 +28,7 @@ class FregeRepl extends DefaultTask {
         }
 
         FileResolver fileResolver = getServices().get(FileResolver.class)
-        JavaExecAction action = new DefaultJavaExecAction(fileResolver)
+        JavaExecAction action = new DefaultExecActionFactory(fileResolver).newJavaExecAction()
         action.setMain("frege.repl.FregeRepl")
         action.workingDir = sourceDir ?: project.projectDir
         action.standardInput = System.in

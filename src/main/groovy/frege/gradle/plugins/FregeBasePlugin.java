@@ -15,8 +15,10 @@ import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.internal.classpath.DefaultClassPath;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.concurrent.Callable;
 
 public class FregeBasePlugin implements Plugin<Project> {
@@ -63,16 +65,20 @@ public class FregeBasePlugin implements Plugin<Project> {
                 String compileTaskName = sourceSet.getCompileTaskName("frege");
                 FregeCompile compile = project.getTasks().create(compileTaskName, FregeCompile.class);
                 compile.setModule(project.file(defaultSourcePath).getAbsolutePath());
-                javaBasePlugin.configureForSourceSet(sourceSet, compile);
+//                javaBasePlugin.configureForSourceSet(sourceSet, compile);
                 compile.getConventionMapping().map("fregepath", new Callable() {
                     public Object call() throws Exception {
                         return sourceSet.getCompileClasspath();
                     }
                 });
-
                 compile.dependsOn(sourceSet.getCompileJavaTaskName());
                 compile.setDescription(String.format("Compiles the %s Frege source.", sourceSet.getName()));
                 compile.setSource(fregeSourceSet.getFrege());
+
+//                compile.setClasspath(sourceSet.getCompileClasspath());
+//                compile.setDestinationDir((File)null);
+
+
                 project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compileTaskName);
                 sourceSet.compiledBy(compile);
             }

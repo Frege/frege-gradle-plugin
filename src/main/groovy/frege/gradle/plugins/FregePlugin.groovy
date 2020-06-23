@@ -37,7 +37,7 @@ class FregePlugin implements Plugin<Project> {
         fregeDoc.group = 'frege'
         fregeDoc.dependsOn "compileFrege" // TODO remove
         SourceSet mainSourceSet = project.sourceSets.main
-        fregeDoc.module = mainSourceSet.output.classesDir.absolutePath
+        fregeDoc.module = mainSourceSet.output.classesDirs.first().absolutePath
         fregeDoc.classpath = mainSourceSet.runtimeClasspath
     }
 

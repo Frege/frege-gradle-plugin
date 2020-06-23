@@ -12,7 +12,7 @@ configurations {
 
 task integTest(type: Test) {
     shouldRunAfter 'test'
-    testClassesDir = sourceSets.integTest.output.classesDir
+    testClassesDirs = sourceSets.integTest.output.classesDirs
     classpath = sourceSets.integTest.runtimeClasspath
 }
 

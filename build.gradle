@@ -7,8 +7,8 @@ apply from: 'gradle/integTest.gradle'
 
 defaultTasks "build"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 ext {
     baseVersion = "0.9"
@@ -17,34 +17,34 @@ ext {
     projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
     projectGroup = "org.frege-lang"
 
-    fregeBaseVersion = "3.23.288"
-    fregeClassifier = "-gaa3af0c"
+    fregeBaseVersion = "3.25.84"
+    fregeClassifier = ""
     fregeVersion = "$fregeBaseVersion$fregeClassifier"
 
     // work around https://issues.gradle.org/browse/GRADLE-3281
     // fixed in 0.9.3 https://plugins.gradle.org/plugin/com.gradle.plugin-publish
-    def home = new File(System.getProperty("user.home"))
-    def propfile = new File(home, ".gradle/gradle.properties")
-    if (propfile.exists()) {
-        props = new Properties()
-        propfile.withReader {
-            props.load(it)
-            def keyName = "gradle.publish.key"
-            def key = props.getProperty(keyName)
-            if (key == null) {
-                println "No key named $keyName found in ${propfile.absolutePath}"
-            }
-            def secretName = "gradle.publish.secret"
-            def secret = props.getProperty(secretName)
-            if (secret == null) {
-                println "No key named $secretName found in ${propfile.absolutePath}"
-            }
-            if (key != null && secret != null) {
-                System.setProperty "gradle.publish.key", props.'gradle.publish.key'
-                System.setProperty "gradle.publish.secret", props.'gradle.publish.secret'
-            }
-        }
-    } else println "cannot find '$propfile.absolutePath'"
+//    def home = new File(System.getProperty("user.home"))
+//    def propfile = new File(home, ".gradle/gradle.properties")
+//    if (propfile.exists()) {
+//        props = new Properties()
+//        propfile.withReader {
+//            props.load(it)
+//            def keyName = "gradle.publish.key"
+//            def key = props.getProperty(keyName)
+//            if (key == null) {
+//                println "No key named $keyName found in ${propfile.absolutePath}"
+//            }
+//            def secretName = "gradle.publish.secret"
+//            def secret = props.getProperty(secretName)
+//            if (secret == null) {
+//                println "No key named $secretName found in ${propfile.absolutePath}"
+//            }
+//            if (key != null && secret != null) {
+//                System.setProperty "gradle.publish.key", props.'gradle.publish.key'
+//                System.setProperty "gradle.publish.secret", props.'gradle.publish.secret'
+//            }
+//        }
+//    } else println "cannot find '$propfile.absolutePath'"
 }
 
 apply from: "gradle/sonatype.gradle"
@@ -55,6 +55,10 @@ group = projectGroup
 repositories {
     mavenLocal()
     mavenCentral()
+    
+    flatDir {
+        dirs 'lib'
+    }
 }
 
 dependencies {

@@ -2,6 +2,7 @@ package frege.gradle.tasks
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.internal.DefaultExecActionFactory
 import org.gradle.process.internal.DefaultJavaExecAction
 import org.gradle.process.internal.JavaExecAction
 
@@ -60,7 +61,7 @@ class FregeQuickCheck extends DefaultTask {
     void runQuickCheck() {
 
         FileResolver fileResolver = getServices().get(FileResolver.class)
-        JavaExecAction action = new DefaultJavaExecAction(fileResolver)
+        JavaExecAction action = new DefaultExecActionFactory(fileResolver).newJavaExecAction()
         action.setMain("frege.tools.Quick")
 
         action.standardInput = System.in

@@ -2,6 +2,7 @@ package frege.gradle.tasks
 
 import groovy.transform.TypeChecked
 import org.gradle.api.Action
+import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
@@ -9,6 +10,38 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.process.JavaExecSpec
+
+/* Compiler flags as of 3.25.84
+
+-d directory    target directory for *.java and *.class files
+-fp classpath   where to find imported frege packages
+-enc charset    charset for source code files, standard is UTF-8
+-enc DEFAULT    platform default charset for source code files
+-target n.m     generate code for java version n.m, also passed to javac
+-nocp           exclude java classpath from -fp
+-hints          print more detailed error messages and warnings
+-inline         inline functions where possible
+-strict-pats    check patterns in multi-argument functions strictly from left to right
+-comments       generate commented code
+-explain i[-j]  print some debugging output from type checker
+               regarding line(s) i (to j). May help to understand
+               inexplicable type errors better.
+-nowarn         don't print warnings (not recommended)
+-v              verbose mode on
+-make           build outdated or missing imports
+-sp srcpath     look for source files in srcpath, default is .
+-target x.y     generate code for java version x.y, default is the
+               version of the JVM the compiler is running in.
+-j              do not run the java compiler
+-ascii          do not use →, ⇒, ∀ and ∷ when presenting types,
+               and use ascii characters for java generics variables
+-greek          make greek type variables
+-fraktur        make 𝖋𝖗𝖆𝖐𝖙𝖚𝖗 type variables
+-latin          make latin type variables
+
+*/
+
+
 
 @TypeChecked
 class FregeCompile extends AbstractCompile {
@@ -23,6 +56,12 @@ class FregeCompile extends AbstractCompile {
 
     @Input
     boolean optimize = false
+
+    @Input
+    boolean strictPats = false
+
+    @Input
+    boolean excludeJavaClasspath = false
 
     boolean verbose = false
 
@@ -60,6 +99,9 @@ class FregeCompile extends AbstractCompile {
     FileCollection fregepath
 
     @Input
+    File destinationDir
+
+    @Input
     String mainClass = "frege.compiler.Main"
 
     @Input
@@ -87,7 +129,7 @@ class FregeCompile extends AbstractCompile {
                 javaExecSpec.args = compilerArgs
                 javaExecSpec.classpath = FregeCompile.this.classpath
                 javaExecSpec.main = mainClass
-                javaExecSpec.jvmArgs = jvmArgumentsToUse
+                javaExecSpec.jvmArgs = jvmArgumentsToUse as List<String>
                 javaExecSpec.errorOutput = System.err;
                 javaExecSpec.standardOutput = System.out;
             }
@@ -114,15 +156,22 @@ class FregeCompile extends AbstractCompile {
         }
         if (inline & !optimize)
             args << "-inline"
+        if (strictPats)
+            args << "-strict-pats"
+        if (excludeJavaClasspath)
+            args << "-nocp"
         if (make)
             args << "-make"
-        if (!compileGeneratedJava) args << "-j"
+        if (!compileGeneratedJava)
+            args << "-j"
         if (target != "") {
             args << "-target"
             args << target
         }
-        if (comments) args << "-comments"
-        if (suppressWarnings) args << "-nowarn"
+        if (comments)
+            args << "-comments"
+        if (suppressWarnings)
+            args << "-nowarn"
         if (explain != "") {
             args << "-explain"
             args << explain
