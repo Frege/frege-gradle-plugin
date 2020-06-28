@@ -43,5 +43,6 @@ task createClasspathManifest {
 }
 
 dependencies {
-    integTestRuntime files(createClasspathManifest)
+    testRuntimeOnly files(createClasspathManifest)
+    // integTestRuntime files(createClasspathManifest) // old
 }

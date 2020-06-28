@@ -115,7 +115,7 @@ class FregeCompile extends AbstractCompile {
 
     List<File> sourcePaths = []
 
-    @Override
+    // @Override // spurious compile error
     @TaskAction
     protected void compile() {
         def jvmArgumentsToUse = allJvmArgs.empty ? ["-Xss$stackSize"] : new ArrayList<String>(allJvmArgs)
