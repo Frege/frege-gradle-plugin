@@ -1,89 +1,18 @@
-apply plugin: "groovy"
-apply plugin: "maven-publish" // I don't think we need this at all
-apply plugin: "signing"
-apply plugin: "idea"
-
-apply from: 'gradle/integTest.gradle'
-
-defaultTasks "build"
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-ext {
-    baseVersion = "0.9"
-    isSnapshot = true
-    snapshotAppendix = "-SNAPSHOT"
-    projectVersion = baseVersion + (isSnapshot ? snapshotAppendix : "")
-    projectGroup = "org.frege-lang"
-
-    fregeBaseVersion = "3.25.84"
-    fregeClassifier = ""
-    fregeVersion = fregeBaseVersion + fregeClassifier
-
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
 }
 
-// apply from: "gradle/sonatype.gradle" // not sure why that is here
-
-version = projectVersion
-group = projectGroup
-
 repositories {
-    mavenLocal()
     mavenCentral()
-    
-    flatDir {
-        dirs 'lib'
-    }
 }
 
 dependencies {
-    implementation "$projectGroup:frege:$fregeVersion"
-    // api "$projectGroup:frege-repl-core:1.2" // this now comes with the frege distro
-    implementation "$projectGroup:frege-native-gen:1.3"
-    // api "org.functionaljava:functionaljava:4.4" // try without
-
-    implementation gradleApi()
-    implementation localGroovy()
-    testImplementation gradleTestKit()
-
-    testImplementation('org.spockframework:spock-core:1.0-groovy-2.4') {
-        exclude module: 'groovy-all'
-    }
+    testImplementation group: 'org.spockframework', name: 'spock-core', version: '2.0-groovy-3.0'
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
 }
 
-// using the publishing plugin
-
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
-    }
-}
-
-// Details on how to publish to the gradle plugin portal
-// Go to http://plugins.gradle.org, get yourself a publishing key
-// and add it to ~/.gradle/gradle.properties as
-// For publishing, run the task publishPlugins.
-
-apply plugin: "com.gradle.plugin-publish"
-
-// The configuration example below shows the minimum required properties
-// configured to publish your plugin to the plugin portal
-pluginBundle {
-    website = 'https://github.com/Frege/frege-gradle-plugin'
-    vcsUrl = 'https://github.com/Frege/frege-gradle-plugin'
-    description = 'Enabling Frege for compilation, testing, documentation, and supporting tools.'
-    tags = ['frege', 'haskell', 'java']
-
-    plugins {
-        fregePlugin {
-            id = 'org.frege-lang'
-            displayName = 'Frege plugin'
-        }
-    }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }

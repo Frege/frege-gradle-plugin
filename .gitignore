@@ -1,28 +1,6 @@
-
-# ignore IDEA files
-*.iml
-*.ipr
-*.iws
-.idea
-# ignore eclipse files
-.project
-.classpath
-.settings
-.scala_dependencies
-.externalToolBuilders
-.factorypath
-# ignore others
-out
-src/test/mod-test
-classes
-.cache
-.DS_Store
 .gradle
-.springBeans
-bin
+.vscode
 build
-*.pyc
+.project
 
-# Ignore Gradle GUI config
-gradle-app.setting
 
