@@ -2,5 +2,6 @@
 .vscode
 build
 .project
-
-
+.classpath
+.settings
+bin

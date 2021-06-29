@@ -1,5 +1,4 @@
 plugins {
-    id 'groovy'
     id 'java-gradle-plugin'
 }
 
@@ -8,9 +7,18 @@ repositories {
 }
 
 dependencies {
-    testImplementation group: 'org.spockframework', name: 'spock-core', version: '2.0-groovy-3.0'
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+
+}
+
+gradlePlugin {
+    plugins {
+        fregePlugin {
+            id = 'ch.fhnw.thga.frege'
+            implementationClass = 'ch.fhnw.thga.gradleplugins.FregePlugin'
+        }
+    }
 }
 
 tasks.withType(Test).configureEach {
