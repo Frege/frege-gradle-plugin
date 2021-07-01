@@ -2,8 +2,6 @@ package ch.fhnw.thga.gradleplugins;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.RegularFile;
-import org.gradle.api.provider.Property;
 
 public class FregePlugin implements Plugin<Project> {
     public static final String SETUP_FREGE_COMPILER_TASK_NAME = "setupFregeCompiler";
@@ -16,7 +14,7 @@ public class FregePlugin implements Plugin<Project> {
         project.getTasks().register(SETUP_FREGE_COMPILER_TASK_NAME, SetupFregeCompilerTask.class, task -> {
             task.getFregeVersion().set(extension.getFregeVersion());
             task.getFregeRelease().set(extension.getFregeRelease());
-            task.getFregeCompilerPath().set(extension.getFregeCompilerPath());
+            task.getFregeCompilerOutputDirectory().set(extension.getFregeCompilerOutputDirectory());
         });
         //Configuration fregeCompiler = project.getConfigurations().create("fregeCompiler", c -> {
         //    c.setVisible(false);

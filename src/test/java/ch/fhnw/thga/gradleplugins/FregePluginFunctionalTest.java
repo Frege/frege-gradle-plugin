@@ -1,6 +1,6 @@
 package ch.fhnw.thga.gradleplugins;
 
-import static ch.fhnw.thga.gradleplugins.FregeExtension.FREGE_COMPILER_BUILD_FILE_KEY;
+import static ch.fhnw.thga.gradleplugins.FregeExtension.FREGE_COMPILER_OUTPUT_DIRECTORY_KEY;
 import static ch.fhnw.thga.gradleplugins.FregeExtension.FREGE_RELEASE_BUILD_FILE_KEY;
 import static ch.fhnw.thga.gradleplugins.FregeExtension.FREGE_VERSION_BUILD_FILE_KEY;
 import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_EXTENSION_NAME;
@@ -58,7 +58,7 @@ public class FregePluginFunctionalTest {
 
     private static String buildFileFregeExtension(String fregeVersion, String fregeRelease,
             Optional<String> compilerPath) {
-        String optionalCompilerPathLine = compilerPath.isPresent() ? String.format("  %s = %s\n", FREGE_COMPILER_BUILD_FILE_KEY, compilerPath.get()) : "";
+        String optionalCompilerPathLine = compilerPath.isPresent() ? String.format("  %s = %s\n", FREGE_COMPILER_OUTPUT_DIRECTORY_KEY, compilerPath.get()) : "";
         return String.format("%s {\n  %s = %s\n  %s = %s\n%s}\n", FREGE_EXTENSION_NAME, FREGE_VERSION_BUILD_FILE_KEY,
                 fregeVersion, FREGE_RELEASE_BUILD_FILE_KEY, fregeRelease, optionalCompilerPathLine);
     }
@@ -74,6 +74,7 @@ public class FregePluginFunctionalTest {
         assertTrue(project.getTasks().getByName(SETUP_FREGE_COMPILER_TASK_NAME) instanceof SetupFregeCompilerTask);
         BuildResult result = GradleRunner.create().withProjectDir(testProjectDir).withPluginClasspath()
                 .withArguments(SETUP_FREGE_COMPILER_TASK_NAME).build();
+        System.out.println(result.getOutput());
         assertEquals(SUCCESS, result.task(":" + SETUP_FREGE_COMPILER_TASK_NAME).getOutcome());
     }
 
@@ -130,7 +131,7 @@ public class FregePluginFunctionalTest {
         String expectedFregeConfig =
             FREGE_EXTENSION_NAME + " {\n" + "  fregeVersion = " + fregeVersion + "\n"
         + "  fregeRelease = " + fregeRelease + "\n"
-        + "  fregeCompilerPath = " + fregeCompilerPath + "\n" + "}\n";
+        + "  fregeCompilerOutputDirectory = " + fregeCompilerPath + "\n" + "}\n";
         assertEquals(expectedFregeConfig, buildFileFregeExtension(fregeVersion, fregeRelease, Optional.of(fregeCompilerPath)));
     }
 
@@ -139,12 +140,15 @@ public class FregePluginFunctionalTest {
             throws Exception {
         String fregeConfig = buildFileFregeExtension("'3.25.84'", "'3.25alpha'", Optional.empty());
         assertSetupFregeCompilerTask(fregeConfig);
+        assertTrue(new File(testProjectDir.getAbsolutePath() + "/lib/frege3.25.84.jar").exists());
+
     }
 
-    @Test
-    void given_frege_compiler_version_3_25_84_when_running_the_setup_frege_compiler_task_then_the_frege_compiler_is_correctly_setup()
-            throws Exception {
-        String fregeConfig = buildFileFregeExtension("'3.25.84'", "'3.25alpha'", Optional.of("layout.projectDirectory.file('lib/frege3.25.84')"));
-        assertSetupFregeCompilerTask(fregeConfig);
-    }
+   @Test
+   void given_frege_compiler_version_3_25_84_when_running_the_setup_frege_compiler_task_then_the_frege_compiler_is_correctly_setup()
+           throws Exception {
+       String fregeConfig = buildFileFregeExtension("'3.25.84'", "'3.25alpha'", Optional.of("layout.buildDirectory.dir('dist')"));
+       assertSetupFregeCompilerTask(fregeConfig);
+       assertTrue(new File(testProjectDir.getAbsolutePath() + "/build/dist/frege3.25.84.jar").exists());
+   }
 }
