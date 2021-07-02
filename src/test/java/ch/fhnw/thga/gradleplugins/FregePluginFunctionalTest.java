@@ -6,6 +6,7 @@ import static ch.fhnw.thga.gradleplugins.FregeExtension.FREGE_VERSION_BUILD_FILE
 import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_EXTENSION_NAME;
 import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_PLUGIN_ID;
 import static ch.fhnw.thga.gradleplugins.FregePlugin.SETUP_FREGE_COMPILER_TASK_NAME;
+import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_COMPILE_TASK_NAME;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -150,5 +151,25 @@ public class FregePluginFunctionalTest {
        String fregeConfig = buildFileFregeExtension("'3.25.84'", "'3.25alpha'", Optional.of("layout.buildDirectory.dir('dist')"));
        assertSetupFregeCompilerTask(fregeConfig);
        assertTrue(new File(testProjectDir.getAbsolutePath() + "/build/dist/frege3.25.84.jar").exists());
+   }
+
+   @Test
+   void frege_compile_task_is_correctly_executed()
+           throws Exception {
+               String fregeConfig = buildFileFregeExtension("'3.25.84'", "'3.25alpha'", Optional.of("layout.buildDirectory.dir('dist')"));
+               String fregeCode = "module ch.fhnw.thga.Completion where\n\n" + 
+                                  "complete :: Int -> (Int, String)\n" +
+                                  "complete i = (i, \"Frege rocks\")\n";
+               File completionFr = new File(testProjectDir, "Completion.fr");
+               writeToFile(completionFr, fregeCode);
+               System.out.println(fregeConfig);
+               appendToFile(buildFile, fregeConfig);
+               assertTrue(project.getTasks().getByName(FREGE_COMPILE_TASK_NAME) instanceof FregeCompileTask);
+               BuildResult result = GradleRunner.create().withProjectDir(testProjectDir).withPluginClasspath()
+                .withArguments(FREGE_COMPILE_TASK_NAME).build();
+                System.out.println(result.getOutput());
+                assertEquals(SUCCESS, result.task(":" + FREGE_COMPILE_TASK_NAME).getOutcome());
+                assertTrue(new File(testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Completion.java").exists());
+                assertTrue(new File(testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Completion.class").exists());
    }
 }

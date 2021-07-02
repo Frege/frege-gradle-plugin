@@ -1,5 +1,7 @@
 package ch.fhnw.thga.gradleplugins;
 
+import java.io.File;
+
 import javax.inject.Inject;
 
 import org.gradle.api.file.DirectoryProperty;
@@ -19,8 +21,16 @@ public abstract class FregeExtension {
 
     public abstract DirectoryProperty getFregeCompilerOutputDirectory();
 
+    public abstract DirectoryProperty getFregeMainSourceDir();
+    
+    public abstract DirectoryProperty getFregeOutputDir();
+
     @Inject
     public FregeExtension(ProjectLayout projectLayout) {
         getFregeCompilerOutputDirectory().convention(projectLayout.getProjectDirectory().dir("lib"));
+        // TODO: change to projectDir/src/main/frege
+        getFregeMainSourceDir().convention(projectLayout.getProjectDirectory());
+        getFregeOutputDir().convention(projectLayout.getBuildDirectory().dir("classes/main/frege"));
     }
+
 }
