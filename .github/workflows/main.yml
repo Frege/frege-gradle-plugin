@@ -1,7 +1,7 @@
 name: Test
 on:
   push:
-    branches: [ main ]
+    branches: [ main, f-simple-javaExec-task-alternative ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
       - name: Run Tests
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
-            gradlew.bat clean test
+            gradlew.bat clean check
           else
-            ./gradlew clean test
+            ./gradlew clean check
           fi

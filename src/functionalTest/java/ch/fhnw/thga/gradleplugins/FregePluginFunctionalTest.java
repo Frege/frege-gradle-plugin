@@ -1,5 +1,6 @@
 package ch.fhnw.thga.gradleplugins;
 
+import static ch.fhnw.thga.gradleplugins.FregeDTOTest.createPluginsSection;
 import static ch.fhnw.thga.gradleplugins.FregeExtension.DEFAULT_DOWNLOAD_DIRECTORY;
 import static ch.fhnw.thga.gradleplugins.FregePlugin.COMPILE_FREGE_TASK_NAME;
 import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_EXTENSION_NAME;
@@ -15,7 +16,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.gradle.api.Project;
@@ -56,15 +56,6 @@ public class FregePluginFunctionalTest {
         writeFile(destination, "\n" + content, true);
     }
 
-    private static String buildFilePluginString(String pluginId) {
-        return String.format("id '%s'", pluginId);
-    }
-
-    private static String createPluginsSection(Stream<String> pluginIds) {
-        String plugins = pluginIds.map(pluginId -> buildFilePluginString(pluginId)).collect(Collectors.joining("\n  "));
-        return String.format("plugins {\n  %s\n}\n", plugins);
-    }
-
     private static String createFregeSection(FregeDTO fregeDTO) {
         return String.format("%s {\n  %s\n}", FREGE_EXTENSION_NAME, fregeDTO.toBuildFile());
     }
@@ -85,38 +76,6 @@ public class FregePluginFunctionalTest {
         writeToFile(settingsFile, "rootProject.name='frege-plugin'");
         project = ProjectBuilder.builder().withProjectDir(testProjectDir).build();
         project.getPluginManager().apply(FREGE_PLUGIN_ID);
-    }
-
-    @Test
-    void given_version_and_release_then_fregeDTO_can_be_converted_to_build_file_string() {
-        FregeDTO fregeDTO = fregeBuilder.version("'3.25'").release("'3.25alpha'").build();
-        String expected = "version = '3.25'\n  release = '3.25alpha'";
-        assertEquals(expected, fregeDTO.toBuildFile());
-    }
-
-    @Test
-    void given_version_release_and_compiler_download_dir_then_fregeDTO_can_be_converted_to_build_file_string() {
-        FregeDTO fregeDTO = fregeBuilder.version("'3.25'").release("'3.25alpha'")
-                .compilerDownloadDir("layout.projectDirectory.dir('dist')").build();
-        String expected = "version = '3.25'\n  release = '3.25alpha'\n  compilerDownloadDir = layout.projectDirectory.dir('dist')";
-        assertEquals(expected, fregeDTO.toBuildFile());
-    }
-
-    @Test
-    void given_single_plugin_id_then_it_is_correctly_converted_to_build_file_string() {
-        String pluginId = "frege";
-        Stream<String> pluginIds = Stream.of(pluginId);
-        String expected = "plugins {\n" + "  id '" + pluginId + "'\n" + "}\n";
-        assertEquals(expected, createPluginsSection(pluginIds));
-    }
-
-    @Test
-    void given_multiple_plugin_ids_then_they_are_correctly_converted_to_build_file_string() {
-        String fregeId = "frege";
-        String javaId = "java";
-        Stream<String> pluginIds = Stream.of(fregeId, javaId);
-        String expected = "plugins {\n" + "  id '" + fregeId + "'\n" + "  id '" + javaId + "'\n" + "}\n";
-        assertEquals(expected, createPluginsSection(pluginIds));
     }
 
     @Test

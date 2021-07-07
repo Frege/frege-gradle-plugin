@@ -6,15 +6,18 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.2')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.2')
-}
-
 group = 'ch.fhnw.thga'
 version = '0.0.1-SNAPSHOT'
 
+sourceSets {
+    functionalTest {
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.test.runtimeClasspath
+    }
+}
+
 gradlePlugin {
+    testSourceSets project.sourceSets.functionalTest
     plugins {
         fregePlugin {
             id = 'ch.fhnw.thga.frege'
@@ -23,6 +26,26 @@ gradlePlugin {
     }
 }
 
+configurations {
+    functionalTestImplementation.extendsFrom testImplementation
+    functionalRuntimeOnly.extendsFrom runtimeOnly
+}
+
+tasks.register('functionalTest', Test) {
+    description = 'Runs functional tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+    shouldRunAfter test
+}
+
+check.dependsOn functionalTest
+
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
+}
+
+dependencies {
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.2')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.2')
 }
