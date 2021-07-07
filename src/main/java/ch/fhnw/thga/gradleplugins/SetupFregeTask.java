@@ -20,34 +20,34 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-public abstract class SetupFregeCompilerTask extends DefaultTask {
-    public static final Logger LOGGER = Logging.getLogger(SetupFregeCompilerTask.class);
+public abstract class SetupFregeTask extends DefaultTask {
+    public static final Logger LOGGER = Logging.getLogger(SetupFregeTask.class);
 
     private static final String FREGE_GITHUB_URL_PREFIX = "https://github.com/Frege/frege/releases/download";
 
     @Input
-    public abstract Property<String> getFregeVersion();
+    public abstract Property<String> getVersion();
 
     @Input
-    public abstract Property<String> getFregeRelease();
+    public abstract Property<String> getRelease();
 
     @Internal
-    public abstract DirectoryProperty getFregeCompilerOutputDirectory();
+    public abstract DirectoryProperty getDownloadDir();
 
     @Internal
     public Provider<String> getFregeVersionJarName() {
-        return getFregeVersion().map(version -> "frege" + version + ".jar");
+        return getVersion().map(version -> "frege" + version + ".jar");
     }
 
     @Internal
     public Provider<String> getDownloadUrl() {
         return getFregeVersionJarName()
-                .map(name -> String.join("/", FREGE_GITHUB_URL_PREFIX, getFregeRelease().get(), name));
+                .map(name -> String.join("/", FREGE_GITHUB_URL_PREFIX, getRelease().get(), name));
     }
 
     @OutputFile
     public Provider<RegularFile> getFregeCompilerOutputPath() {
-        return getFregeCompilerOutputDirectory().file(getFregeVersionJarName());
+        return getDownloadDir().file(getFregeVersionJarName());
     }
 
     @TaskAction
@@ -57,7 +57,8 @@ public abstract class SetupFregeCompilerTask extends DefaultTask {
                 FileOutputStream fregeCompilerOutputStream = new FileOutputStream(fregeCompilerOutputPath);) {
             FileChannel writeChannel = fregeCompilerOutputStream.getChannel();
             writeChannel.transferFrom(readChannel, 0, Long.MAX_VALUE);
-            LOGGER.lifecycle(String.format("Successfully downloaded %s to: %s", getFregeVersionJarName().get(), fregeCompilerOutputPath));
+            LOGGER.lifecycle(String.format("Successfully downloaded %s to: %s", getFregeVersionJarName().get(),
+                    fregeCompilerOutputPath));
         } catch (IOException e) {
             throw new GradleException(e.getMessage());
         }

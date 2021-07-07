@@ -14,7 +14,7 @@ import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 
-public abstract class FregeCompileTask extends DefaultTask {
+public abstract class CompileFregeTask extends DefaultTask {
     private final JavaExec javaExec;
 
     @InputFile
@@ -27,16 +27,16 @@ public abstract class FregeCompileTask extends DefaultTask {
     public abstract DirectoryProperty getFregeOutputDir();
 
     @Inject
-    public FregeCompileTask(ObjectFactory objectFactory) {
+    public CompileFregeTask(ObjectFactory objectFactory) {
         javaExec = objectFactory.newInstance(JavaExec.class);
 
     }
 
-
     @TaskAction
     public void compileFrege() {
         String fregeMainSourceDir = getFregeMainSourceDir().getAsFile().get().getAbsolutePath();
-        List<String> args = List.of("-v", "-d", getFregeOutputDir().get().getAsFile().getAbsolutePath(), "-sp", fregeMainSourceDir, fregeMainSourceDir);
+        List<String> args = List.of("-v", "-d", getFregeOutputDir().get().getAsFile().getAbsolutePath(), "-sp",
+                fregeMainSourceDir, fregeMainSourceDir);
         javaExec.setClasspath(getProject().files(getFregeCompilerJar())).setArgs(args).exec();
     }
 }
