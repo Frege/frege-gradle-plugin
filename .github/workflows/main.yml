@@ -1,9 +1,9 @@
 name: Test
 on:
   push:
-    branches: [ main, f-simple-javaExec-task-alternative ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
   workflow_dispatch:
 
 jobs:
