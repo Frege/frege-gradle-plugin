@@ -1,13 +1,11 @@
 plugins {
     id 'java-gradle-plugin'
+    id 'maven-publish'
 }
 
 repositories {
     mavenCentral()
 }
-
-group = 'ch.fhnw.thga'
-version = '0.0.1-SNAPSHOT'
 
 sourceSets {
     functionalTest {
@@ -46,6 +44,8 @@ tasks.withType(Test).configureEach {
 }
 
 dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.7.2')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.2')
+    def junit5Group = 'org.junit.jupiter'
+    def junit5Version = '5.7.2'
+    testImplementation group: junit5Group, name: 'junit-jupiter-api', version: junit5Version
+    testRuntimeOnly group: junit5Group, name: 'junit-jupiter-engine', version: junit5Version
 }
