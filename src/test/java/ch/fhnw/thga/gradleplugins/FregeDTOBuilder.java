@@ -6,6 +6,7 @@ public class FregeDTOBuilder implements Builder {
     private String compilerDownloadDir = "";
     private String mainSourceDir = "";
     private String outputDir = "";
+    private String mainModule = "";
 
     @Override
     public Builder version(String version) {
@@ -41,8 +42,13 @@ public class FregeDTOBuilder implements Builder {
         return this;
     }
 
-    public FregeDTO build() {
-        return new FregeDTO(version, release, compilerDownloadDir, mainSourceDir, outputDir);
+    @Override
+    public Builder mainModule(String mainModule) {
+        this.mainModule = mainModule;
+        return this;
     }
 
+    public FregeDTO build() {
+        return new FregeDTO(version, release, compilerDownloadDir, mainSourceDir, outputDir, mainModule);
+    }
 }

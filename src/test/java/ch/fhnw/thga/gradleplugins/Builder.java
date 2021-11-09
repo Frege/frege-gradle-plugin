@@ -11,5 +11,7 @@ public interface Builder {
 
     Builder outputDir(String outputDir);
 
+    Builder mainModule(String mainModule);
+
     FregeDTO build();
 }
