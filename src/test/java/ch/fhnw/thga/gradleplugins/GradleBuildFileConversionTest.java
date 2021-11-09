@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.IndicativeSentencesGeneration;
 import org.junit.jupiter.api.Nested;
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class GradleBuildFileConversionTest {
-    private final FregeDTOBuilder fregeBuilder = new FregeDTOBuilder();
+    private static FregeDTOBuilder fregeBuilder;
 
     private static String buildFilePluginString(String pluginId) {
         return String.format("id '%s'", pluginId);
@@ -28,6 +29,11 @@ public class GradleBuildFileConversionTest {
 
     private void assertStringContainsSubStrings(String s, Stream<String> subStrings) {
         assertTrue(subStrings.allMatch(substring -> s.contains(substring)));
+    }
+
+    @BeforeEach
+    void setup() {
+        fregeBuilder = FregeDTOBuilder.getInstance();
     }
 
     @Nested

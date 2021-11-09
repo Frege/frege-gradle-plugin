@@ -1,12 +1,29 @@
 package ch.fhnw.thga.gradleplugins;
 
-public class FregeDTOBuilder implements Builder {
+public final class FregeDTOBuilder implements Builder {
     private String version = "";
     private String release = "";
     private String compilerDownloadDir = "";
     private String mainSourceDir = "";
     private String outputDir = "";
     private String mainModule = "";
+
+    private static volatile FregeDTOBuilder instance;
+
+    private FregeDTOBuilder() {
+    }
+
+    public static FregeDTOBuilder getInstance() {
+        FregeDTOBuilder result = instance;
+        if (result != null) {
+            return result;
+        } else {
+            synchronized (FregeDTOBuilder.class) {
+                return (instance == null) ? new FregeDTOBuilder() : instance;
+            }
+        }
+    }
+
 
     @Override
     public Builder version(String version) {
