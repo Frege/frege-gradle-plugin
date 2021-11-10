@@ -29,7 +29,6 @@ public abstract class CompileFregeTask extends DefaultTask {
     @Inject
     public CompileFregeTask(ObjectFactory objectFactory) {
         javaExec = objectFactory.newInstance(JavaExec.class);
-
     }
 
     @TaskAction
