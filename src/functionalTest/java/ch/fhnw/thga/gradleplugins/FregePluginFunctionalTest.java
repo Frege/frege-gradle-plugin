@@ -67,7 +67,7 @@ public class FregePluginFunctionalTest {
         return String.format("%s {\n  %s\n}", FREGE_EXTENSION_NAME, fregeDTO.toBuildFile());
     }
 
-    private BuildResult runGradleTask(String taskName, String... args) {
+    private BuildResult runGradleTask(String... taskName) {
         return GradleRunner.create().withProjectDir(testProjectDir).withPluginClasspath().withArguments(taskName)
                 .build();
     }
@@ -191,7 +191,7 @@ public class FregePluginFunctionalTest {
     @IndicativeSentencesGeneration(separator = " -> ", generator = DisplayNameGenerator.ReplaceUnderscores.class)
     class Run_frege_task_works {
         @Test
-        void given_frege_file_with_main_function() throws Exception {
+        void given_frege_file_with_main_function_and_main_module_config() throws Exception {
             String fregeCode = String.join(NEW_LINE, "module ch.fhnw.thga.Main where", NEW_LINE, NEW_LINE,
                     "  main = do", NEW_LINE, "    println \"Frege rocks\"", NEW_LINE);
             String mainFr = "Main.fr";
@@ -218,6 +218,21 @@ public class FregePluginFunctionalTest {
             assertTrue(project.getTasks().getByName(RUN_FREGE_TASK_NAME) instanceof RunFregeTask);
             assertEquals(FAILED, result.task(":" + RUN_FREGE_TASK_NAME).getOutcome());
             assertTrue(result.getOutput().contains("Main method not found"));
+        }
+
+        @Test
+        void given_frege_file_with_main_function_and_main_module_command_line_option() throws Exception {
+            String fregeCode = String.join(NEW_LINE, "module ch.fhnw.thga.Main where", NEW_LINE, NEW_LINE,
+                    "  main = do", NEW_LINE, "    println \"Frege rocks\"", NEW_LINE);
+            String mainFr = "Main.fr";
+            String buildFileConfig = createFregeSection(
+                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
+            setupDefaultFregeProjectStructure(fregeCode, mainFr, buildFileConfig);
+
+            BuildResult result = runGradleTask(RUN_FREGE_TASK_NAME, "--mainModule=ch.fhnw.thga.Main");
+            assertTrue(project.getTasks().getByName(RUN_FREGE_TASK_NAME) instanceof RunFregeTask);
+            assertEquals(SUCCESS, result.task(":" + RUN_FREGE_TASK_NAME).getOutcome());
+            assertTrue(result.getOutput().contains("Frege rocks"));
         }
     }
 }

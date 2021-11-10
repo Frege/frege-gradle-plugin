@@ -14,6 +14,7 @@ import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.options.Option;
 
 public abstract class RunFregeTask extends DefaultTask {
     public static final Logger LOGGER = Logging.getLogger(SetupFregeTask.class);
@@ -26,6 +27,7 @@ public abstract class RunFregeTask extends DefaultTask {
     public abstract DirectoryProperty getFregeOutputDir();
 
     @Input
+    @Option(option = "mainModule", description = "The full name of the Frege module with a main function, e.g. 'my.mod.Name'")
     public abstract Property<String> getMainModule();
 
     @Inject
