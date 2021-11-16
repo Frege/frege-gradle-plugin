@@ -164,9 +164,8 @@ public class FregePluginFunctionalTest {
         @Test
         void given_frege_code_and_many_compiler_flags() throws Exception {
             String completionFr = "Completion.fr";
-            String buildConfigWithCompilerFlags = createFregeSection(
-                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'")
-                            .compilerFlags("['-v', '-make', '-O', '-hints']").build());
+            String buildConfigWithCompilerFlags = createFregeSection(fregeBuilder.version("'3.25.84'")
+                    .release("'3.25alpha'").compilerFlags("['-v', '-make', '-O', '-hints']").build());
             setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, buildConfigWithCompilerFlags);
 
             BuildResult result = runGradleTask(COMPILE_FREGE_TASK_NAME);
@@ -179,7 +178,19 @@ public class FregePluginFunctionalTest {
             assertTrue(new File(
                     testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Completion.class")
                             .exists());
+        }
 
+        @Test
+        void given_frege_code_and_illegal_compiler_flags() throws Exception {
+            String completionFr = "Completion.fr";
+            String buildConfigWithIllegalCompilerFlags = createFregeSection(fregeBuilder.version("'3.25.84'")
+                    .release("'3.25alpha'").compilerFlags("['-make', '-bla']").build());
+            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, buildConfigWithIllegalCompilerFlags);
+
+            BuildResult result = runAndFailGradleTask(COMPILE_FREGE_TASK_NAME);
+
+            assertTrue(project.getTasks().getByName(COMPILE_FREGE_TASK_NAME) instanceof CompileFregeTask);
+            assertEquals(FAILED, result.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
         }
 
         @Test
