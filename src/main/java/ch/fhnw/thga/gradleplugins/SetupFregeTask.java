@@ -40,7 +40,7 @@ public abstract class SetupFregeTask extends DefaultTask {
     }
 
     @Internal
-    public Provider<String> getDownloadUrl() {
+    final public Provider<String> getDownloadUrl() {
         return getFregeVersionJarName()
                 .map(name -> String.join("/", FREGE_GITHUB_URL_PREFIX, getRelease().get(), name));
     }

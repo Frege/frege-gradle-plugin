@@ -13,15 +13,17 @@ public class FregeDTO {
     public final String mainSourceDir;
     public final String outputDir;
     public final String mainModule;
+    public final String compilerFlags;
 
     public FregeDTO(String version, String release, String compilerDownloadDir, String mainSourceDir,
-            String outputDir, String mainModule) {
+            String outputDir, String mainModule, String compilerFlags) {
         this.version = version;
         this.release = release;
         this.compilerDownloadDir = compilerDownloadDir;
         this.mainSourceDir = mainSourceDir;
         this.outputDir = outputDir;
         this.mainModule = mainModule;
+        this.compilerFlags = compilerFlags;
     }
 
     public String getVersion() {
@@ -46,6 +48,10 @@ public class FregeDTO {
 
     public String getMainModule() {
         return mainModule;
+    }
+
+    public String getCompilerFlags() {
+        return compilerFlags;
     }
 
     private String getFieldValue(Field field) {

@@ -13,5 +13,7 @@ public interface Builder {
 
     Builder mainModule(String mainModule);
 
+    Builder compilerFlags(String compilerFlags);
+
     FregeDTO build();
 }
