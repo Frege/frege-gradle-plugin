@@ -35,11 +35,9 @@ import org.junit.jupiter.api.io.TempDir;
 @TestInstance(Lifecycle.PER_CLASS)
 public class FregePluginFunctionalTest {
     private static final String NEW_LINE = System.lineSeparator();
-    private static final String SIMPLE_FREGE_CODE = String.join(NEW_LINE,
-          "module ch.fhnw.thga.Completion where", NEW_LINE,
-          NEW_LINE,
-          "  complete :: Int -> (Int, String)", NEW_LINE,
-          "  complete i = (i, \"Frege rocks\")", NEW_LINE);
+    private static final String SIMPLE_FREGE_CODE = String.join(NEW_LINE, "module ch.fhnw.thga.Completion where",
+            NEW_LINE, NEW_LINE, "  complete :: Int -> (Int, String)", NEW_LINE, "  complete i = (i, \"Frege rocks\")",
+            NEW_LINE);
 
     private static FregeDTOBuilder fregeBuilder;
 
@@ -77,10 +75,10 @@ public class FregePluginFunctionalTest {
                 .buildAndFail();
     }
 
-    private void setupDefaultFregeProjectStructure(String fregeCode, String fregeFileName, String buildFileConfig) throws Exception {
+    private void setupDefaultFregeProjectStructure(String fregeCode, String fregeFileName, String buildFileConfig)
+            throws Exception {
         Files.createDirectories(testProjectDir.toPath().resolve(Paths.get("src", "main", "frege")));
-        File fregeFile = testProjectDir.toPath().resolve(Paths.get("src", "main", "frege", fregeFileName))
-                .toFile();
+        File fregeFile = testProjectDir.toPath().resolve(Paths.get("src", "main", "frege", fregeFileName)).toFile();
         writeToFile(fregeFile, fregeCode);
         appendToFile(buildFile, buildFileConfig);
     }
@@ -164,6 +162,27 @@ public class FregePluginFunctionalTest {
         }
 
         @Test
+        void given_frege_code_and_many_compiler_flags() throws Exception {
+            String completionFr = "Completion.fr";
+            String buildConfigWithCompilerFlags = createFregeSection(
+                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'")
+                            .compilerFlags("['-v', '-make', '-O', '-hints']").build());
+            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, buildConfigWithCompilerFlags);
+
+            BuildResult result = runGradleTask(COMPILE_FREGE_TASK_NAME);
+
+            assertTrue(project.getTasks().getByName(COMPILE_FREGE_TASK_NAME) instanceof CompileFregeTask);
+            assertEquals(SUCCESS, result.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
+            assertTrue(new File(
+                    testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Completion.java")
+                            .exists());
+            assertTrue(new File(
+                    testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Completion.class")
+                            .exists());
+
+        }
+
+        @Test
         void given_frege_code_in_custom_source_dir_and_custom_output_dir_and_minimal_build_file_config()
                 throws Exception {
             Path customMainSourceDir = testProjectDir.toPath().resolve(Paths.get("src", "frege"));
@@ -196,8 +215,7 @@ public class FregePluginFunctionalTest {
                     "  main = do", NEW_LINE, "    println \"Frege rocks\"", NEW_LINE);
             String mainFr = "Main.fr";
             String buildFileConfig = createFregeSection(
-                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'")
-                    .mainModule("'ch.fhnw.thga.Main'").build());
+                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'").mainModule("'ch.fhnw.thga.Main'").build());
             setupDefaultFregeProjectStructure(fregeCode, mainFr, buildFileConfig);
 
             BuildResult result = runGradleTask(RUN_FREGE_TASK_NAME);
@@ -209,9 +227,8 @@ public class FregePluginFunctionalTest {
         @Test
         void given_frege_file_without_main_function() throws Exception {
             String completionFr = "Completion.fr";
-            String buildFileConfig = createFregeSection(
-                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'")
-                            .mainModule("'ch.fhnw.thga.Completion'").build());
+            String buildFileConfig = createFregeSection(fregeBuilder.version("'3.25.84'").release("'3.25alpha'")
+                    .mainModule("'ch.fhnw.thga.Completion'").build());
             setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, buildFileConfig);
 
             BuildResult result = runAndFailGradleTask(RUN_FREGE_TASK_NAME);

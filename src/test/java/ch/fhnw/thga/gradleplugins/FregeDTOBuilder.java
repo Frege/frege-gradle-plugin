@@ -7,6 +7,7 @@ public final class FregeDTOBuilder implements Builder {
     private String mainSourceDir = "";
     private String outputDir = "";
     private String mainModule = "";
+    private String compilerFlags = "";
 
     private static volatile FregeDTOBuilder instance;
 
@@ -65,7 +66,13 @@ public final class FregeDTOBuilder implements Builder {
         return this;
     }
 
+    @Override
+    public Builder compilerFlags(String compilerFlags) {
+        this.compilerFlags = compilerFlags;
+        return this;
+    }
+
     public FregeDTO build() {
-        return new FregeDTO(version, release, compilerDownloadDir, mainSourceDir, outputDir, mainModule);
+        return new FregeDTO(version, release, compilerDownloadDir, mainSourceDir, outputDir, mainModule, compilerFlags);
     }
 }

@@ -28,6 +28,7 @@ Optional configuration parameters inside `build.gradle`:
 - compilerDownloadDir: defaults to `<projectRoot>/lib`
 - mainSourceDir: defaults to `<projectRoot>/src/main/frege`
 - outputDir: defaults to `<projectRoot>/build/classes/main/frege`
+- compilerFlags: defaults to `['-O', '-make']`
 
 
 
