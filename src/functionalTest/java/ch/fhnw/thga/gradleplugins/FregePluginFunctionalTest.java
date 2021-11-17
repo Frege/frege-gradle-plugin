@@ -5,6 +5,8 @@ import static ch.fhnw.thga.gradleplugins.FregeExtension.DEFAULT_DOWNLOAD_DIRECTO
 import static ch.fhnw.thga.gradleplugins.FregePlugin.*;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
 import static org.gradle.testkit.runner.TaskOutcome.FAILED;
+import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE;
+import static org.gradle.testkit.runner.TaskOutcome.FROM_CACHE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -213,6 +215,41 @@ public class FregePluginFunctionalTest {
                     new File(testProjectDir.getAbsolutePath() + "/build/frege/ch/fhnw/thga/Completion.java").exists());
             assertTrue(
                     new File(testProjectDir.getAbsolutePath() + "/build/frege/ch/fhnw/thga/Completion.class").exists());
+        }
+
+        @Test
+        void and_is_up_to_date_given_no_code_changes() throws Exception {
+            String completionFr = "Completion.fr";
+            String minimalBuildFileConfig = createFregeSection(fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
+            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, minimalBuildFileConfig);
+
+            BuildResult first = runGradleTask(COMPILE_FREGE_TASK_NAME);
+            assertEquals(SUCCESS, first.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
+
+            BuildResult second = runGradleTask(COMPILE_FREGE_TASK_NAME);
+            assertEquals(UP_TO_DATE, second.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
+        }
+
+        @Test
+        void and_is_cached_given_cache_hit() throws Exception {
+            String completionFr = "Completion.fr";
+            String minimalBuildFileConfig = createFregeSection(fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
+            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, minimalBuildFileConfig);
+
+            BuildResult first = runGradleTask(COMPILE_FREGE_TASK_NAME, "--build-cache");
+            assertEquals(SUCCESS, first.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
+
+            String codeChange = String.join(NEW_LINE, "module ch.fhnw.thga.Completion where",
+            NEW_LINE, NEW_LINE, "  frob :: Int -> (Int, String)", NEW_LINE, "  frob i = (i, \"Frege rocks\")",
+                    NEW_LINE);
+            setupDefaultFregeProjectStructure(codeChange, completionFr, "");
+
+            BuildResult second = runGradleTask(COMPILE_FREGE_TASK_NAME, "--build-cache");
+            assertEquals(SUCCESS, second.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
+
+            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, "");
+            BuildResult third = runGradleTask(COMPILE_FREGE_TASK_NAME, "--build-cache");
+            assertEquals(FROM_CACHE, third.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
         }
     }
 

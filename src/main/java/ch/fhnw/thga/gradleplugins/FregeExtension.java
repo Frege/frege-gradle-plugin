@@ -12,6 +12,8 @@ import org.gradle.api.provider.Property;
 public abstract class FregeExtension {
     public static final String DEFAULT_DOWNLOAD_DIRECTORY = "lib";
     public static final String DEFAULT_RELATIVE_OUTPUT_DIR = "classes/main/frege";
+    public static final String DEFAULT_RELATIVE_SOURCE_DIR = "src/main/frege";
+    public static final List<String> DEFAULT_COMPILER_FLAGS = List.of("-O", "-make");
 
     public abstract Property<String> getVersion();
 
@@ -30,8 +32,8 @@ public abstract class FregeExtension {
     @Inject
     public FregeExtension(ProjectLayout projectLayout) {
         getCompilerDownloadDir().convention(projectLayout.getProjectDirectory().dir(DEFAULT_DOWNLOAD_DIRECTORY));
-        getMainSourceDir().convention(projectLayout.getProjectDirectory());
+        getMainSourceDir().convention(projectLayout.getProjectDirectory().dir(DEFAULT_RELATIVE_SOURCE_DIR));
         getOutputDir().convention(projectLayout.getBuildDirectory().dir(DEFAULT_RELATIVE_OUTPUT_DIR));
-        getCompilerFlags().convention(List.of("-O", "-make"));
+        getCompilerFlags().convention(DEFAULT_COMPILER_FLAGS);
     }
 }
