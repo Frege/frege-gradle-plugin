@@ -30,14 +30,15 @@ Optional configuration parameters inside `build.gradle`:
 - outputDir: defaults to `<projectRoot>/build/classes/main/frege`
 - compilerFlags: defaults to `['-O', '-make']`
 
-
-
-
 ### Added Tasks
 
 - **setupFrege**: Downloads the specified version of the Frege compiler.
 - **compileFrege**: All your `*.fr` files in `mainSourceDir` get compiled to `outputDir`.
 - **runFrege**: Runs the Frege module specified by `mainModule`. Alternatively you can also pass the main module by command line, e.g: `gradle runFrege --mainModule=my.mod.Name`.
+
+### Build Cache
+
+The `compileFrege` task supports incremental builds from build cache. Enable the build cache by setting `org.gradle.caching=true` in your `gradle.properites`.
 
 
 ## How to Contribute
