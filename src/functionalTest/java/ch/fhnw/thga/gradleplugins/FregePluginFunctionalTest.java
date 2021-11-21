@@ -1,12 +1,16 @@
 package ch.fhnw.thga.gradleplugins;
 
-import static ch.fhnw.thga.gradleplugins.GradleBuildFileConversionTest.createPluginsSection;
 import static ch.fhnw.thga.gradleplugins.FregeExtension.DEFAULT_DOWNLOAD_DIRECTORY;
-import static ch.fhnw.thga.gradleplugins.FregePlugin.*;
-import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
+import static ch.fhnw.thga.gradleplugins.FregePlugin.COMPILE_FREGE_TASK_NAME;
+import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_EXTENSION_NAME;
+import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_PLUGIN_ID;
+import static ch.fhnw.thga.gradleplugins.FregePlugin.RUN_FREGE_TASK_NAME;
+import static ch.fhnw.thga.gradleplugins.FregePlugin.SETUP_FREGE_TASK_NAME;
+import static ch.fhnw.thga.gradleplugins.GradleBuildFileConversionTest.createPluginsSection;
 import static org.gradle.testkit.runner.TaskOutcome.FAILED;
-import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE;
 import static org.gradle.testkit.runner.TaskOutcome.FROM_CACHE;
+import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
+import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -183,19 +187,6 @@ public class FregePluginFunctionalTest {
         }
 
         @Test
-        void given_frege_code_and_illegal_compiler_flags() throws Exception {
-            String completionFr = "Completion.fr";
-            String buildConfigWithIllegalCompilerFlags = createFregeSection(fregeBuilder.version("'3.25.84'")
-                    .release("'3.25alpha'").compilerFlags("['-make', '-bla']").build());
-            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, buildConfigWithIllegalCompilerFlags);
-
-            BuildResult result = runAndFailGradleTask(COMPILE_FREGE_TASK_NAME);
-
-            assertTrue(project.getTasks().getByName(COMPILE_FREGE_TASK_NAME) instanceof CompileFregeTask);
-            assertEquals(FAILED, result.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
-        }
-
-        @Test
         void given_frege_code_in_custom_source_dir_and_custom_output_dir_and_minimal_build_file_config()
                 throws Exception {
             Path customMainSourceDir = testProjectDir.toPath().resolve(Paths.get("src", "frege"));
@@ -220,7 +211,8 @@ public class FregePluginFunctionalTest {
         @Test
         void and_is_up_to_date_given_no_code_changes() throws Exception {
             String completionFr = "Completion.fr";
-            String minimalBuildFileConfig = createFregeSection(fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
+            String minimalBuildFileConfig = createFregeSection(
+                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
             setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, minimalBuildFileConfig);
 
             BuildResult first = runGradleTask(COMPILE_FREGE_TASK_NAME);
@@ -233,15 +225,15 @@ public class FregePluginFunctionalTest {
         @Test
         void and_is_cached_given_cache_hit() throws Exception {
             String completionFr = "Completion.fr";
-            String minimalBuildFileConfig = createFregeSection(fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
+            String minimalBuildFileConfig = createFregeSection(
+                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
             setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, minimalBuildFileConfig);
 
             BuildResult first = runGradleTask(COMPILE_FREGE_TASK_NAME, "--build-cache");
             assertEquals(SUCCESS, first.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
 
-            String codeChange = String.join(NEW_LINE, "module ch.fhnw.thga.Completion where",
-            NEW_LINE, NEW_LINE, "  frob :: Int -> (Int, String)", NEW_LINE, "  frob i = (i, \"Frege rocks\")",
-                    NEW_LINE);
+            String codeChange = String.join(NEW_LINE, "module ch.fhnw.thga.Completion where", NEW_LINE, NEW_LINE,
+                    "  frob :: Int -> (Int, String)", NEW_LINE, "  frob i = (i, \"Frege rocks\")", NEW_LINE);
             setupDefaultFregeProjectStructure(codeChange, completionFr, "");
 
             BuildResult second = runGradleTask(COMPILE_FREGE_TASK_NAME, "--build-cache");
@@ -250,6 +242,70 @@ public class FregePluginFunctionalTest {
             setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, "");
             BuildResult third = runGradleTask(COMPILE_FREGE_TASK_NAME, "--build-cache");
             assertEquals(FROM_CACHE, third.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
+        }
+
+        @Test
+        void given_two_dependent_frege_files_in_default_source_dir_and_minimal_build_file_config() throws Exception {
+            String completionFr = "Completion.fr";
+            String frobFr = "Frob.fr";
+            String frobCode = String.join(NEW_LINE, "module ch.fhnw.thga.Frob where", NEW_LINE, NEW_LINE,
+                    "import ch.fhnw.thga.Completion (complete)", NEW_LINE, "frob i = complete $ i + i", NEW_LINE);
+
+            String minimalBuildFileConfig = createFregeSection(
+                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
+            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, minimalBuildFileConfig);
+            setupDefaultFregeProjectStructure(frobCode, frobFr, "");
+
+            BuildResult result = runGradleTask(COMPILE_FREGE_TASK_NAME);
+
+            assertTrue(project.getTasks().getByName(COMPILE_FREGE_TASK_NAME) instanceof CompileFregeTask);
+            assertEquals(SUCCESS, result.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
+            assertTrue(new File(
+                    testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Completion.java")
+                            .exists());
+            assertTrue(new File(
+                    testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Completion.class")
+                            .exists());
+            assertTrue(new File(testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Frob.java")
+                    .exists());
+            assertTrue(new File(testProjectDir.getAbsolutePath() + "/build/classes/main/frege/ch/fhnw/thga/Frob.class")
+                    .exists());
+        }
+    }
+
+    @Nested
+    @TestInstance(Lifecycle.PER_CLASS)
+    @IndicativeSentencesGeneration(separator = " -> ", generator = DisplayNameGenerator.ReplaceUnderscores.class)
+    class Compile_frege_task_fails {
+        @Test
+        void given_frege_code_and_illegal_compiler_flags() throws Exception {
+            String completionFr = "Completion.fr";
+            String buildConfigWithIllegalCompilerFlags = createFregeSection(fregeBuilder.version("'3.25.84'")
+                    .release("'3.25alpha'").compilerFlags("['-make', '-bla']").build());
+            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, buildConfigWithIllegalCompilerFlags);
+
+            BuildResult result = runAndFailGradleTask(COMPILE_FREGE_TASK_NAME);
+
+            assertTrue(project.getTasks().getByName(COMPILE_FREGE_TASK_NAME) instanceof CompileFregeTask);
+            assertEquals(FAILED, result.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
+        }
+
+        @Test
+        void given_two_dependent_frege_files_in_default_source_dir_and_without_make_compiler_flag() throws Exception {
+            String completionFr = "Completion.fr";
+            String frobFr = "Frob.fr";
+            String frobCode = String.join(NEW_LINE, "module ch.fhnw.thga.Frob where", NEW_LINE, NEW_LINE,
+                    "import ch.fhnw.thga.Completion (complete)", NEW_LINE, "frob i = complete $ i + i", NEW_LINE);
+
+            String minimalBuildFileConfigWithoutMake = createFregeSection(
+                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'").compilerFlags("['-v']").build());
+            setupDefaultFregeProjectStructure(SIMPLE_FREGE_CODE, completionFr, minimalBuildFileConfigWithoutMake);
+            setupDefaultFregeProjectStructure(frobCode, frobFr, "");
+
+            BuildResult result = runAndFailGradleTask(COMPILE_FREGE_TASK_NAME);
+
+            assertTrue(project.getTasks().getByName(COMPILE_FREGE_TASK_NAME) instanceof CompileFregeTask);
+            assertEquals(FAILED, result.task(":" + COMPILE_FREGE_TASK_NAME).getOutcome());
         }
     }
 
