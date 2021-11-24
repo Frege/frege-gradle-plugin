@@ -1,11 +1,7 @@
 package ch.fhnw.thga.gradleplugins;
 
 import static ch.fhnw.thga.gradleplugins.FregeExtension.DEFAULT_DOWNLOAD_DIRECTORY;
-import static ch.fhnw.thga.gradleplugins.FregePlugin.COMPILE_FREGE_TASK_NAME;
-import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_EXTENSION_NAME;
-import static ch.fhnw.thga.gradleplugins.FregePlugin.FREGE_PLUGIN_ID;
-import static ch.fhnw.thga.gradleplugins.FregePlugin.RUN_FREGE_TASK_NAME;
-import static ch.fhnw.thga.gradleplugins.FregePlugin.SETUP_FREGE_TASK_NAME;
+import static ch.fhnw.thga.gradleplugins.FregePlugin.*;
 import static ch.fhnw.thga.gradleplugins.GradleBuildFileConversionTest.createPluginsSection;
 import static org.gradle.testkit.runner.TaskOutcome.FAILED;
 import static org.gradle.testkit.runner.TaskOutcome.FROM_CACHE;
@@ -33,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.IndicativeSentencesGeneration;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -354,6 +351,24 @@ public class FregePluginFunctionalTest {
             assertTrue(project.getTasks().getByName(RUN_FREGE_TASK_NAME) instanceof RunFregeTask);
             assertEquals(SUCCESS, result.task(":" + RUN_FREGE_TASK_NAME).getOutcome());
             assertTrue(result.getOutput().contains("Frege rocks"));
+        }
+    }
+
+    @Nested
+    @TestInstance(Lifecycle.PER_CLASS)
+    @IndicativeSentencesGeneration(separator = " -> ", generator = DisplayNameGenerator.ReplaceUnderscores.class)
+    class Repl_frege_task_works {
+        @Test
+        @Tag("hard")
+        void given_minimal_build_file_config() throws Exception {
+            Files.createDirectories(testProjectDir.toPath().resolve(Paths.get("src", "main", "frege")));
+            String minimalBuildFileConfig = createFregeSection(
+                    fregeBuilder.version("'3.25.84'").release("'3.25alpha'").build());
+            appendToFile(buildFile, minimalBuildFileConfig);
+
+            BuildResult result = runGradleTask(REPL_FREGE_TASK_NAME);
+            assertTrue(project.getTasks().getByName(REPL_FREGE_TASK_NAME) instanceof ReplFregeTask);
+            assertEquals(SUCCESS, result.task(":" + REPL_FREGE_TASK_NAME).getOutcome());
         }
     }
 }
