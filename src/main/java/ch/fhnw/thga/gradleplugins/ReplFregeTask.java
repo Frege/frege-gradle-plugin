@@ -17,10 +17,11 @@ import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.options.Option;
 
-public abstract class RunFregeTask extends DefaultTask {
+public abstract class ReplFregeTask extends DefaultTask {
     public static final Logger LOGGER = Logging.getLogger(SetupFregeTask.class);
+    public static final String REPL_MAIN_CLASS = "frege.repl.FregeRepl";
+
     private final JavaExec javaExec;
 
     @InputFile
@@ -28,10 +29,6 @@ public abstract class RunFregeTask extends DefaultTask {
 
     @InputDirectory
     public abstract DirectoryProperty getFregeOutputDir();
-
-    @Input
-    @Option(option = "mainModule", description = "The full name of the Frege module with a main function, e.g. 'my.mod.Name'")
-    public abstract Property<String> getMainModule();
 
     @Input
     public abstract Property<String> getFregeDependencies();
@@ -45,13 +42,13 @@ public abstract class RunFregeTask extends DefaultTask {
     }
 
     @Inject
-    public RunFregeTask(ObjectFactory objectFactory) {
+    public ReplFregeTask(ObjectFactory objectFactory) {
         javaExec = objectFactory.newInstance(JavaExec.class);
     }
 
     @TaskAction
-    public void runFrege() {
-        javaExec.getMainClass().set(getMainModule());
+    public void startFregeRepl() {
+        javaExec.getMainClass().set(REPL_MAIN_CLASS);
         javaExec.setClasspath(getClasspath().get()).exec();
     }
 }

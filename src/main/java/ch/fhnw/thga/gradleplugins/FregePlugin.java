@@ -9,6 +9,7 @@ public class FregePlugin implements Plugin<Project> {
     public static final String SETUP_FREGE_TASK_NAME = "setupFrege";
     public static final String COMPILE_FREGE_TASK_NAME = "compileFrege";
     public static final String RUN_FREGE_TASK_NAME = "runFrege";
+    public static final String REPL_FREGE_TASK_NAME = "replFrege";
     public static final String FREGE_PLUGIN_ID = "ch.fhnw.thga.frege";
     public static final String FREGE_EXTENSION_NAME = "frege";
     public static final String FREGE_IMPLEMENTATION_SCOPE = "implementation";
@@ -38,6 +39,13 @@ public class FregePlugin implements Plugin<Project> {
             task.getFregeCompilerJar().set(setupFregeCompilerTask.get().getFregeCompilerOutputPath());
             task.getFregeOutputDir().set(extension.getOutputDir());
             task.getMainModule().set(extension.getMainModule());
+            task.getFregeDependencies().set(implementation.getAsPath());
+        });
+        project.getTasks().register(REPL_FREGE_TASK_NAME, ReplFregeTask.class, task -> {
+            task.dependsOn(compileFregeTask);
+            task.getFregeCompilerJar().set(setupFregeCompilerTask.get().getFregeCompilerOutputPath());
+            task.getFregeOutputDir().set(extension.getOutputDir());
+            task.getFregeDependencies().set(implementation.getAsPath());
         });
     }
 }
