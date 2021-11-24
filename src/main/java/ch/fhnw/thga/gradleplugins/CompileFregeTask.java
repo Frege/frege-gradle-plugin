@@ -1,6 +1,7 @@
 package ch.fhnw.thga.gradleplugins;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,6 +13,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
@@ -39,6 +41,9 @@ public abstract class CompileFregeTask extends DefaultTask {
     @Input
     public abstract ListProperty<String> getFregeCompilerFlags();
 
+    @Input
+    public abstract Property<String> getFregeDependencies();
+
     @OutputDirectory
     public abstract DirectoryProperty getFregeOutputDir();
 
@@ -52,18 +57,29 @@ public abstract class CompileFregeTask extends DefaultTask {
         return getFregeMainSourcePath().map(srcPath -> List.of("-sp", srcPath));
     }
 
+    @Internal
+    public final Provider<List<String>> getDependencyArg() {
+        return getFregeDependencies().map(depsClasspath -> {
+            return depsClasspath.isEmpty() ? Collections.emptyList() : List.of("-fp", depsClasspath);
+        });
+    }
+
     @Inject
     public CompileFregeTask(ObjectFactory objectFactory) {
         javaExec = objectFactory.newInstance(JavaExec.class);
     }
 
+    private List<String> buildCompilerArgsFromProperties(List<String> directoryArg) {
+        return Stream
+                .of(getDependencyArg().get(), getFregeCompilerFlags().get(), directoryArg, getSourcePathArg().get(),
+                        List.of(getFregeMainSourcePath().get()))
+                .filter(lists -> !lists.isEmpty()).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
     @TaskAction
     public void compileFrege() {
         List<String> directoryArg = List.of("-d", getFregeOutputDir().getAsFile().get().getAbsolutePath());
-        List<String> compilerArgs = Stream
-                .of(getFregeCompilerFlags().get(), directoryArg, getSourcePathArg().get(),
-                        List.of(getFregeMainSourcePath().get()))
-                .flatMap(Collection::stream).collect(Collectors.toList());
-        javaExec.setClasspath(getProject().files(getFregeCompilerJar())).setArgs(compilerArgs).exec();
+        javaExec.setClasspath(getProject().files(getFregeCompilerJar()))
+                .setArgs(buildCompilerArgsFromProperties(directoryArg)).exec();
     }
 }
