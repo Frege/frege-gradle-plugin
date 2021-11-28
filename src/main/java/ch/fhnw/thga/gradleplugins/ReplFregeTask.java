@@ -48,6 +48,7 @@ public abstract class ReplFregeTask extends DefaultTask {
 
     @TaskAction
     public void startFregeRepl() {
+        javaExec.setStandardInput(System.in);
         javaExec.getMainClass().set(REPL_MAIN_CLASS);
         javaExec.setClasspath(getClasspath().get()).exec();
     }
