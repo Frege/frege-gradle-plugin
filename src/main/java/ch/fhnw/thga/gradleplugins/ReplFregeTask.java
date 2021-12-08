@@ -21,6 +21,7 @@ import org.gradle.api.tasks.TaskAction;
 public abstract class ReplFregeTask extends DefaultTask {
     public static final Logger LOGGER = Logging.getLogger(SetupFregeTask.class);
     public static final String REPL_MAIN_CLASS = "frege.repl.FregeRepl";
+    public static final String JLINE_TERMINAL_TYPE_PROPERTY = "jline.terminal";
 
     private final JavaExec javaExec;
 
@@ -49,6 +50,7 @@ public abstract class ReplFregeTask extends DefaultTask {
     @TaskAction
     public void startFregeRepl() {
         javaExec.setStandardInput(System.in);
+        javaExec.systemProperty(JLINE_TERMINAL_TYPE_PROPERTY, "none");
         javaExec.getMainClass().set(REPL_MAIN_CLASS);
         javaExec.setClasspath(getClasspath().get()).exec();
     }
